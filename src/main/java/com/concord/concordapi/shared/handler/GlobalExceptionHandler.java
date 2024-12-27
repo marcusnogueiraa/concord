@@ -13,6 +13,7 @@ import com.concord.concordapi.user.exception.UserAlreadyExistsException;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -55,6 +56,26 @@ public class GlobalExceptionHandler {
             request.getRequestURI());
         return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(errorResponse);
     }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
+        // Extrai todas as mensagens de violação
+        String message = ex.getConstraintViolations()
+                .stream()
+                .map(violation -> 
+                    String.format("Field '%s': %s", 
+                                  violation.getPropertyPath(), 
+                                  violation.getMessage()))
+                .reduce((msg1, msg2) -> msg1 + "; " + msg2)
+                .orElse("Constraint violations occurred");
+    
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            message, 
+            HttpStatus.BAD_REQUEST.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(errorResponse);
+    }
+    
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleException(Exception exc, HttpServletRequest request){

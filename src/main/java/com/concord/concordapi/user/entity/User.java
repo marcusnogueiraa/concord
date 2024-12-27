@@ -12,6 +12,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import lombok.AllArgsConstructor;
@@ -35,6 +36,7 @@ public class User {
     @NotBlank
     @Size(min = 4)
     @Column(unique = true)
+    @Pattern(regexp = "^[A-Za-z0-9+/=]*$", message = "Username with letters and numbers only")
     private String username;
     
     @Email
