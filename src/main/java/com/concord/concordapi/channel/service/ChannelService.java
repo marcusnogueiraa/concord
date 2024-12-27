@@ -36,8 +36,22 @@ public class ChannelService {
         Channel createdChannel = channelRepository.save(newChannel);
         return createdChannel;
     }
-    public void delete(Channel channel){
+    public void delete(Long id){
+        Optional<Channel> searchedChannel = channelRepository.findById(id);
+        Channel channel = searchedChannel.orElseThrow(() -> new EntityNotFoundException("Channel "+id+" not found"));
         channelRepository.delete(channel);
+    }
+    public Channel update(Long id, ChannelRequestBodyDTO channel){
+        Optional<Channel> searchedChannel = channelRepository.findById(id);
+        Channel updateChannel = searchedChannel.orElseThrow(() -> new EntityNotFoundException("Channel "+id+" not found"));
+    
+        Optional<Server> searchedServer = serverRepository.findById(channel.serverId());
+        Server attServer = searchedServer.orElseThrow(() -> new EntityNotFoundException("Server "+channel.serverId()+" not found"));
+        updateChannel.setName(channel.name());
+        updateChannel.setServer(attServer);
+        updateChannel.setDescription(channel.description());
+        Channel createdChannel = channelRepository.save(updateChannel);
+        return createdChannel;
     }
     
 }

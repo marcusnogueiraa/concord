@@ -3,8 +3,8 @@ package com.concord.concordapi.channel.entity;
 import java.time.LocalDateTime;
 
 import com.concord.concordapi.server.entity.Server;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Table(name = "channels")
+
 public class Channel {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,8 +35,8 @@ public class Channel {
     @NotBlank
     private String name;
 
-    @ManyToOne(cascade = CascadeType.ALL) 
-    @JoinColumn(name = "serverId", nullable = false) 
+    @ManyToOne
+    @JoinColumn(name = "server_id", nullable = false) 
     private Server server;
     @Column(columnDefinition = "TEXT")
     private String description; 

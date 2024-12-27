@@ -1,13 +1,17 @@
 package com.concord.concordapi.server.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import com.concord.concordapi.channel.entity.Channel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -34,6 +38,9 @@ public class Server {
     // @ManyToOne // Define a relação Many-to-One
     // @JoinColumn(name = "owner_id", nullable = false) // Mapeia a chave estrangeira
     private Long ownerId;
+    @JsonIgnore
+    @OneToMany(mappedBy = "server", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Channel> channels;
     
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
