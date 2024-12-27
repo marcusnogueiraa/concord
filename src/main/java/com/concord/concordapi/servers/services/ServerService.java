@@ -18,7 +18,7 @@ public class ServerService {
 
     public Server get(Long id){
         Optional<Server> searchedServer = serverRepository.findById(id);
-        Server server = searchedServer.orElseThrow(() -> new EntityNotFoundException(id));
+        Server server = searchedServer.orElseThrow(() -> new EntityNotFoundException("Server "+id+" not found"));
         return server;
     }
 
@@ -28,13 +28,8 @@ public class ServerService {
         newServer.setOwnerId(server.ownerId());
         return serverRepository.save(newServer);
     }
-    public boolean delete(Server server){
-        try{
-            serverRepository.delete(server);
-            return true;
-        }catch(Exception error){
-            return false;
-        }
+    public void delete(Server server){
+        serverRepository.delete(server);
     }
     
 }

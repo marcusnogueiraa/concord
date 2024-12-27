@@ -22,7 +22,7 @@ public class ChannelService {
 
     public Channel get(Long id){
         Optional<Channel> searchedChannel = channelRepository.findById(id);
-        Channel channel = searchedChannel.orElseThrow(() -> new EntityNotFoundException(id));
+        Channel channel = searchedChannel.orElseThrow(() -> new EntityNotFoundException("Channel "+id+" not found"));
         return channel;
     }
 
@@ -30,18 +30,14 @@ public class ChannelService {
         Channel newChannel = new Channel();
         newChannel.setName(channel.name());
         Optional<Server> searchedServer = serverRepository.findById(channel.serverId());
-        Server attServer = searchedServer.orElseThrow(() -> new EntityNotFoundException(channel.serverId()));
+        Server attServer = searchedServer.orElseThrow(() -> new EntityNotFoundException("Server "+channel.serverId()+" not found"));
         newChannel.setServer(attServer);
         newChannel.setDescription(channel.description());
-        return channelRepository.save(newChannel);
+        Channel createdChannel = channelRepository.save(newChannel);
+        return createdChannel;
     }
-    public boolean delete(Channel server){
-        try{
-            channelRepository.delete(server);
-            return true;
-        }catch(Exception error){
-            return false;
-        }
+    public void delete(Channel channel){
+        channelRepository.delete(channel);
     }
     
 }

@@ -28,13 +28,7 @@ public class ChannelController {
 
     @PostMapping("/channel")
     public ResponseEntity<Channel> create(@RequestBody ChannelRequestBodyDTO channel) {
-        try{
-            Channel createdChannel = channelService.create(channel);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
-        }catch(Exception error){
-            System.out.println("erro: "+error);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        
+        Channel createdChannel = channelService.create(channel);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel); 
     }
 }

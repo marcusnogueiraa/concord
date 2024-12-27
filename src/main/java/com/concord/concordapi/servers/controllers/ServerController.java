@@ -28,13 +28,7 @@ public class ServerController {
 
     @PostMapping("/server")
     public ResponseEntity<Server> create(@RequestBody ServerRequestBodyDTO server) {
-        try{
-            Server createdServer = serverService.create(server);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdServer);
-        }catch(Exception error){
-            System.out.println("erro: "+error);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        
+        Server createdServer = serverService.create(server);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdServer);
     }
 }
