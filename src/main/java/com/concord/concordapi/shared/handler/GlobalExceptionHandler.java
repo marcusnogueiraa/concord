@@ -1,11 +1,12 @@
-package com.concord.concordapi.shared;
+package com.concord.concordapi.shared.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.concord.concordapi.shared.dtos.ErrorResponseDTO;
+import com.concord.concordapi.shared.dto.ErrorResponseDTO;
+import com.concord.concordapi.shared.exception.EntityNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 

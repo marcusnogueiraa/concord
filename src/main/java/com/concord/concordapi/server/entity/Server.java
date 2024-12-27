@@ -1,4 +1,4 @@
-package com.concord.concordapi.servers.entities;
+package com.concord.concordapi.server.entity;
 
 import java.time.LocalDateTime;
 

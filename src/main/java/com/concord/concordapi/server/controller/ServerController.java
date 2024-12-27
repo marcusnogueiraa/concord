@@ -1,4 +1,4 @@
-package com.concord.concordapi.servers.controllers;
+package com.concord.concordapi.server.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.concord.concordapi.servers.dtos.ServerRequestBodyDTO;
-import com.concord.concordapi.servers.entities.Server;
-import com.concord.concordapi.servers.services.ServerService;
+import com.concord.concordapi.server.dto.ServerRequestBodyDTO;
+import com.concord.concordapi.server.entity.Server;
+import com.concord.concordapi.server.service.ServerService;
 
 @RestController
 @RequestMapping("/api")

@@ -1,4 +1,4 @@
-package com.concord.concordapi.shared;
+package com.concord.concordapi.shared.exception;
 
 import lombok.Getter;
 

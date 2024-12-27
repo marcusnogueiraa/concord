@@ -1,16 +1,16 @@
-package com.concord.concordapi.channel.services;
+package com.concord.concordapi.channel.service;
 
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.concord.concordapi.channel.dtos.ChannelRequestBodyDTO;
-import com.concord.concordapi.channel.entities.Channel;
-import com.concord.concordapi.servers.entities.Server;
-import com.concord.concordapi.channel.repositories.ChannelRepository;
-import com.concord.concordapi.servers.repositories.ServerRepository;
-import com.concord.concordapi.shared.EntityNotFoundException;
+import com.concord.concordapi.channel.dto.ChannelRequestBodyDTO;
+import com.concord.concordapi.channel.entity.Channel;
+import com.concord.concordapi.channel.repository.ChannelRepository;
+import com.concord.concordapi.server.entity.Server;
+import com.concord.concordapi.server.repository.ServerRepository;
+import com.concord.concordapi.shared.exception.EntityNotFoundException;
 
 
 @Service

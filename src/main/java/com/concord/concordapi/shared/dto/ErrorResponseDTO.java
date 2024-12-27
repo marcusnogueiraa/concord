@@ -1,4 +1,4 @@
-package com.concord.concordapi.shared.dtos;
+package com.concord.concordapi.shared.dto;
 
 
 import java.time.LocalDateTime;

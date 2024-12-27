@@ -1,4 +1,4 @@
-package com.concord.concordapi.servers.dtos;
+package com.concord.concordapi.server.dto;
 
 public record ServerRequestBodyDTO(String name, Long ownerId){
 

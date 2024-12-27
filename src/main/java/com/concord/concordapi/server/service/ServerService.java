@@ -1,14 +1,14 @@
-package com.concord.concordapi.servers.services;
+package com.concord.concordapi.server.service;
 
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.concord.concordapi.servers.dtos.ServerRequestBodyDTO;
-import com.concord.concordapi.servers.entities.Server;
-import com.concord.concordapi.servers.repositories.ServerRepository;
-import com.concord.concordapi.shared.EntityNotFoundException;
+import com.concord.concordapi.server.dto.ServerRequestBodyDTO;
+import com.concord.concordapi.server.entity.Server;
+import com.concord.concordapi.server.repository.ServerRepository;
+import com.concord.concordapi.shared.exception.EntityNotFoundException;
 
 
 @Service
