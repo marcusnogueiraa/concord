@@ -27,8 +27,8 @@ public class ServerController {
     private ServerService serverService;
 
     @GetMapping("/server/{id}")
-    public ResponseEntity<Server> get(@PathVariable Long id){
-        Server server = serverService.get(id);
+    public ResponseEntity<Server> getById(@PathVariable Long id){
+        Server server = serverService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(server);
     }
 
@@ -39,14 +39,14 @@ public class ServerController {
     }
 
     @DeleteMapping("/server/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        serverService.delete(id);
+    public ResponseEntity<?> deleteById(@PathVariable Long id) {
+        serverService.deleteById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); 
     }
 
-    @PutMapping("/channel/{id}")
-    public ResponseEntity<Server> update(@RequestBody @Valid ServerRequestBodyDTO server, @PathVariable Long id) {
-        Server updatedServer = serverService.update(id, server);
+    @PutMapping("/server/{id}")
+    public ResponseEntity<Server> updateById(@RequestBody @Valid ServerRequestBodyDTO server, @PathVariable Long id) {
+        Server updatedServer = serverService.updateById(id, server);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(updatedServer); 
     }
 }
