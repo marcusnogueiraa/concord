@@ -14,6 +14,8 @@ import com.concord.concordapi.server.dto.ServerRequestBodyDTO;
 import com.concord.concordapi.server.entity.Server;
 import com.concord.concordapi.server.service.ServerService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api")
 public class ServerController {
@@ -27,7 +29,7 @@ public class ServerController {
     }
 
     @PostMapping("/server")
-    public ResponseEntity<Server> create(@RequestBody ServerRequestBodyDTO server) {
+    public ResponseEntity<Server> create(@RequestBody @Valid ServerRequestBodyDTO server) {
         Server createdServer = serverService.create(server);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdServer);
     }

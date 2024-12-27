@@ -14,6 +14,8 @@ import com.concord.concordapi.channel.dto.ChannelRequestBodyDTO;
 import com.concord.concordapi.channel.entity.Channel;
 import com.concord.concordapi.channel.service.ChannelService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api")
 public class ChannelController {
@@ -27,7 +29,7 @@ public class ChannelController {
     }
 
     @PostMapping("/channel")
-    public ResponseEntity<Channel> create(@RequestBody ChannelRequestBodyDTO channel) {
+    public ResponseEntity<Channel> create(@RequestBody @Valid ChannelRequestBodyDTO channel) {
         Channel createdChannel = channelService.create(channel);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel); 
     }

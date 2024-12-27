@@ -14,6 +14,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,20 +26,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(name = "channels")
 public class Channel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank
     private String name;
 
-    @ManyToOne(cascade = CascadeType.ALL) // Define a relação Many-to-One
-    @JoinColumn(name = "serverId", nullable = false) // Mapeia a chave estrangeira
+    @ManyToOne(cascade = CascadeType.ALL) 
+    @JoinColumn(name = "serverId", nullable = false) 
     private Server server;
     @Column(columnDefinition = "TEXT")
     private String description; 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
