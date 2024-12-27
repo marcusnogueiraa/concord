@@ -15,14 +15,14 @@ import com.concord.concordapi.auth.entity.UserDetailsImpl;
 
 @Service
 public class JwtTokenService {    
-    @Value("${jwt.private}")
-    private static String SECRET_KEY;
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
 
     @Value("${spring.application.name}")
-    private static String ISSUER;
+    private String ISSUER;
 
     @Value("${app.zonedatetime}")
-    private static String ZONE_DATETIME;
+    private String ZONE_DATETIME;
 
     public String generateToken(UserDetailsImpl user){
         try {

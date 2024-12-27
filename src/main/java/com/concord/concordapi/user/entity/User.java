@@ -13,11 +13,11 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,14 +29,17 @@ public class User {
     private Long id;
     
     @NotBlank
+    @Size(min = 4)
     private String name;
     
     @NotBlank
-    @Size(min = 3, max = 50)
+    @Size(min = 4)
+    @Column(unique = true)
     private String username;
     
     @Email
     @NotBlank
+    @Column(unique = true)
     private String email;
     
     @NotBlank
