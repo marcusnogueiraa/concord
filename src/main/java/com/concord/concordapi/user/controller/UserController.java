@@ -32,10 +32,5 @@ public class UserController {
         userService.createUser(createUserDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
-    @GetMapping("/test")
-    public ResponseEntity<String> getAuthenticationTest() {
-        return new ResponseEntity<>("Autenticado com sucesso", HttpStatus.OK);
-    }
     
 }
