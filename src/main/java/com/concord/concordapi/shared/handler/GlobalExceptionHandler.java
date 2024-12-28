@@ -5,6 +5,9 @@ import com.concord.concordapi.shared.exception.EntityNotFoundException;
 import com.concord.concordapi.user.exception.UserAlreadyExistsException;
 
 import org.springframework.security.authorization.AuthorizationDeniedException;
+
+import java.util.StringJoiner;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -52,6 +55,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponseDTO> handleMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
         String message = ex.getMessage();
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            message, 
+            HttpStatus.BAD_REQUEST.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(errorResponse);
+    } 
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponseDTO> handleMessageNotReadable(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        StringJoiner errorMessages = new StringJoiner("; ");
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errorMessages.add(fieldName + ": " + errorMessage);
+        });
+        String message = errorMessages.toString();
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
             message, 
             HttpStatus.BAD_REQUEST.value(), 
