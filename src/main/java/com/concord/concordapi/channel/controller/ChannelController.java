@@ -25,25 +25,25 @@ public class ChannelController {
     @Autowired
     private ChannelService channelService;
 
-    @GetMapping("/channel/{id}")
+    @GetMapping("/channels/{id}")
     public ResponseEntity<Channel> get(@PathVariable Long id){
         Channel channel = channelService.get(id);
         return ResponseEntity.status(HttpStatus.OK).body(channel);
     }
 
-    @PostMapping("/channel")
+    @PostMapping("/channels")
     public ResponseEntity<Channel> create(@RequestBody @Valid ChannelRequestBodyDTO channel) {
         Channel createdChannel = channelService.create(channel);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel); 
     }
 
-    @DeleteMapping("/channel/{id}")
+    @DeleteMapping("/channels/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         channelService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); 
     }
 
-    @PutMapping("/channel/{id}")
+    @PutMapping("/channels/{id}")
     public ResponseEntity<Channel> update(@RequestBody @Valid ChannelPutBodyDTO channel, @PathVariable Long id) {
         Channel updatedChannel = channelService.update(id, channel);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(updatedChannel); 
