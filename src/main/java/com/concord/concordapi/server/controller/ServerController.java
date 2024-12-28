@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.concord.concordapi.server.dto.ServerPutBodyDTO;
 import com.concord.concordapi.server.dto.ServerRequestBodyDTO;
 import com.concord.concordapi.server.entity.Server;
 import com.concord.concordapi.server.service.ServerService;
@@ -23,10 +24,12 @@ import jakarta.validation.Valid;
 public class ServerController {
     @Autowired
     private ServerService serverService;
+    
 
     @GetMapping("/{id}")
     public ResponseEntity<Server> getById(@PathVariable Long id){
         Server server = serverService.getById(id);
+        
         return ResponseEntity.status(HttpStatus.OK).body(server);
     }
 
@@ -43,7 +46,7 @@ public class ServerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Server> updateById(@RequestBody @Valid ServerRequestBodyDTO server, @PathVariable Long id) {
+    public ResponseEntity<Server> updateById(@RequestBody @Valid ServerPutBodyDTO server, @PathVariable Long id) {
         Server updatedServer = serverService.updateById(id, server);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(updatedServer); 
     }
