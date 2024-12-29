@@ -1,7 +1,6 @@
 package com.concord.concordapi.user.service;
 
 import java.security.SecureRandom;
-import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +14,7 @@ import com.concord.concordapi.user.exception.UserAlreadyExistsException;
 import com.concord.concordapi.auth.entity.UserDetailsImpl;
 import com.concord.concordapi.auth.service.JwtTokenService;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
+import com.concord.concordapi.shared.exception.SMTPServerException;
 import com.concord.concordapi.shared.service.EmailService;
 import com.concord.concordapi.shared.service.RedisService;
 import com.concord.concordapi.user.dto.CreateUserDto;
@@ -70,7 +70,11 @@ public class UserService {
         String key = CREATED_USER_CODE_KEY + code;
         redisService.save(key, newUser, EMAIL_EXPIRE_TIME_IN_SECONDS);
 
-        emailService.sendEmail(createUserDto.email(), "Registration Validation - Concord", code);
+        try {
+            emailService.sendVerificationEmail(createUserDto.email(), code);
+        } catch (Exception err) {
+            throw new SMTPServerException("SMTP Server Fail");
+        }
     }
 
     public void confirmUserRegister(String code){
@@ -90,9 +94,10 @@ public class UserService {
     private String getRandomCode() {
         SecureRandom secureRandom = new SecureRandom();
         StringBuilder code = new StringBuilder(8);
+        String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
         for (int i = 0; i < 8; i++) {
-            int randomIndex = secureRandom.nextInt("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".length());
+            int randomIndex = secureRandom.nextInt(CHARACTERS.length());
             code.append(CHARACTERS.charAt(randomIndex));
         }
 
