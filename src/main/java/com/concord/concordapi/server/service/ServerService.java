@@ -69,4 +69,10 @@ public class ServerService {
         Server createdServer = serverRepository.save(updatedServer);
         return createdServer;
     }
+    public void subscribeUser(String username, Long serverId){
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Server server = serverRepository.findById(serverId).orElseThrow(() -> new EntityNotFoundException("Server not found"));
+        user.getServers().add(server);
+        userRepository.save(user);
+    }
 }

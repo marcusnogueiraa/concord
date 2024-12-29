@@ -50,4 +50,10 @@ public class ServerController {
         Server updatedServer = serverService.updateById(id, server);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(updatedServer); 
     }
+
+    @PostMapping("/{serverId}/subscribe/{username}")
+    public ResponseEntity<Void> subscribeServer(@PathVariable String username, @PathVariable Long serverId) {
+        serverService.subscribeUser(username, serverId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }

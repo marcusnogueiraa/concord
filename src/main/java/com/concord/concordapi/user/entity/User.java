@@ -1,12 +1,23 @@
 package com.concord.concordapi.user.entity;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Set;
+
+import org.springframework.web.socket.TextMessage;
+
+import com.concord.concordapi.server.entity.Server;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -47,6 +58,15 @@ public class User {
     @NotBlank
     private String password;
 
+    @ManyToMany
+    @JoinTable(
+        name = "user_server", // Nome da tabela de junção
+        joinColumns = @JoinColumn(name = "user_id"), // Coluna que referencia o usuário
+        inverseJoinColumns = @JoinColumn(name = "server_id") // Coluna que referencia o servidor
+    )
+    @JsonManagedReference
+    private Set<Server> servers;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
@@ -63,4 +83,14 @@ public class User {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", username='" + username + "'}";
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username); // Usando apenas atributos simples
+    }
+
 }

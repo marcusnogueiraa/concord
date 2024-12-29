@@ -150,6 +150,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleException(Exception exc, HttpServletRequest request){
+        exc.printStackTrace();
+
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
             exc.getMessage(),
             HttpStatus.INTERNAL_SERVER_ERROR.value(), 
