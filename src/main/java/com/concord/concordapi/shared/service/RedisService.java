@@ -1,5 +1,7 @@
 package com.concord.concordapi.shared.service;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,10 @@ public class RedisService {
 
     public void save(String key, Object value) {
         redisTemplate.opsForValue().set(key, value);
+    }
+
+    public void save(String key, Object value, int durationInSeconds) {
+        redisTemplate.opsForValue().set(key, value, durationInSeconds, TimeUnit.SECONDS);
     }
 
     public Object find(String key) {

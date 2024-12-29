@@ -2,6 +2,7 @@ package com.concord.concordapi.shared.handler;
 
 import com.concord.concordapi.shared.dto.ErrorResponseDTO;
 import com.concord.concordapi.shared.exception.EntityNotFoundException;
+import com.concord.concordapi.user.exception.IncorrectCodeException;
 import com.concord.concordapi.user.exception.UserAlreadyExistsException;
 
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -104,6 +105,16 @@ public class GlobalExceptionHandler {
             HttpStatus.CONFLICT.value(), 
             request.getRequestURI());
         return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(errorResponse);
+    }
+
+    @ExceptionHandler(IncorrectCodeException.class)
+    public ResponseEntity<ErrorResponseDTO>  handleIncorrectCode(IncorrectCodeException ex, HttpServletRequest request) {
+        String message = ex.getMessage();
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            message, 
+            HttpStatus.UNPROCESSABLE_ENTITY.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY.value()).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)

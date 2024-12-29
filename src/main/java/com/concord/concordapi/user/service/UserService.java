@@ -1,5 +1,8 @@
 package com.concord.concordapi.user.service;
 
+import java.security.SecureRandom;
+import java.util.Base64;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -7,10 +10,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.concord.concordapi.user.entity.User;
+import com.concord.concordapi.user.exception.IncorrectCodeException;
 import com.concord.concordapi.user.exception.UserAlreadyExistsException;
 import com.concord.concordapi.auth.entity.UserDetailsImpl;
 import com.concord.concordapi.auth.service.JwtTokenService;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
+import com.concord.concordapi.shared.service.EmailService;
+import com.concord.concordapi.shared.service.RedisService;
 import com.concord.concordapi.user.dto.CreateUserDto;
 import com.concord.concordapi.user.dto.LoginUserDto;
 import com.concord.concordapi.user.dto.RecoveryJwtTokenDto;
@@ -31,6 +37,15 @@ public class UserService {
     @Autowired
     private SecurityConfiguration securityConfiguration;
 
+    @Autowired
+    private RedisService redisService;
+
+    @Autowired
+    private EmailService emailService;
+
+    private final static String CREATED_USER_CODE_KEY = "created-user-code:";
+    private final static int EMAIL_EXPIRE_TIME_IN_SECONDS = 300;
+
     public RecoveryJwtTokenDto authenticateUser(LoginUserDto loginUserDto) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                 new UsernamePasswordAuthenticationToken(loginUserDto.username(), loginUserDto.password());
@@ -50,12 +65,19 @@ public class UserService {
                     createUserDto.password())
                 ).build();
 
-        Integer code = getRandomCode();
+        String code = getRandomCode();
+
+        String key = CREATED_USER_CODE_KEY + code;
+        redisService.save(key, newUser, EMAIL_EXPIRE_TIME_IN_SECONDS);
+
+        emailService.sendEmail(createUserDto.email(), "Registration Validation - Concord", code);
     }
 
-    public void persistUser(CreateUserDto createUserDto){
-        
-        userRepository.save(newUser);
+    public void confirmUserRegister(String code){
+        String key = CREATED_USER_CODE_KEY + code;
+        User user = (User) redisService.find(key);
+        if (user == null) throw new IncorrectCodeException("Incorrect Code");
+        else userRepository.save(user);
     }
 
     private void verifyIfAlreadyExists(CreateUserDto user){
@@ -65,8 +87,16 @@ public class UserService {
             throw new UserAlreadyExistsException("Username " + user.username() + " already exists.");
     }
 
-    private Integer getRandomCode(){
-        
+    private String getRandomCode() {
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder code = new StringBuilder(8);
+
+        for (int i = 0; i < 8; i++) {
+            int randomIndex = secureRandom.nextInt("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".length());
+            code.append(CHARACTERS.charAt(randomIndex));
+        }
+
+        return code.toString();
     }
 
 }
