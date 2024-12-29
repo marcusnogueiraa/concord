@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
-import com.concord.concordapi.auth.service.AuthInfoService;
+import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.channel.dto.ChannelPutBodyDTO;
 import com.concord.concordapi.channel.dto.ChannelRequestBodyDTO;
 import com.concord.concordapi.channel.entity.Channel;
@@ -23,7 +23,7 @@ public class ChannelService {
     @Autowired
     private ServerRepository serverRepository;
     @Autowired
-    private AuthInfoService authInfoService;
+    private AuthService authService;
 
     public Channel get(Long id){
         Optional<Channel> searchedChannel = channelRepository.findById(id);
@@ -36,7 +36,7 @@ public class ChannelService {
         newChannel.setName(channel.name());
         Optional<Server> searchedServer = serverRepository.findById(channel.serverId());
         Server attServer = searchedServer.orElseThrow(() -> new EntityNotFoundException("Server "+channel.serverId()+" not found"));
-        if (!attServer.getOwner().getUsername().equals(authInfoService.getAuthenticatedUsername())) {
+        if (!attServer.getOwner().getUsername().equals(authService.getAuthenticatedUsername())) {
             throw new AuthorizationDeniedException("Owner doesn't match the logged-in user");
         }
         newChannel.setServer(attServer);
@@ -47,7 +47,7 @@ public class ChannelService {
     public void delete(Long id){
         Optional<Channel> searchedChannel = channelRepository.findById(id);
         Channel channel = searchedChannel.orElseThrow(() -> new EntityNotFoundException("Channel "+id+" not found"));
-        if (!channel.getServer().getOwner().getUsername().equals(authInfoService.getAuthenticatedUsername())) {
+        if (!channel.getServer().getOwner().getUsername().equals(authService.getAuthenticatedUsername())) {
             throw new AuthorizationDeniedException("Owner doesn't match the logged-in user");
         }
         channelRepository.delete(channel);
@@ -55,7 +55,7 @@ public class ChannelService {
     public Channel update(Long id, ChannelPutBodyDTO channel){
         Optional<Channel> searchedChannel = channelRepository.findById(id);
         Channel updateChannel = searchedChannel.orElseThrow(() -> new EntityNotFoundException("Channel "+id+" not found"));
-        if (!updateChannel.getServer().getOwner().getUsername().equals(authInfoService.getAuthenticatedUsername())) {
+        if (!updateChannel.getServer().getOwner().getUsername().equals(authService.getAuthenticatedUsername())) {
             throw new AuthorizationDeniedException("Owner doesn't match the logged-in user");
         }
         

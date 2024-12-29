@@ -1,8 +1,10 @@
 package com.concord.concordapi.user.dto;
 
-public record CreateUserDto (
+import java.time.LocalDateTime;
+
+public record UserRequestDto (
     String name,
     String username,
     String email,
-    String password
+    LocalDateTime createdAt
 ) {}
