@@ -9,7 +9,7 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.Topic;
 
-import com.concord.concordapi.websocket.listener.RedisMessageListener;
+import com.concord.concordapi.shared.listener.RedisMessageListener;
 
 @Configuration
 public class RedisConfiguration {
@@ -23,7 +23,7 @@ public class RedisConfiguration {
         container.setConnectionFactory(connectionFactory);
         
         // Subscrição ao canal 'direct_messages'
-        Topic topic = new PatternTopic("direct_messages");
+        Topic topic = new PatternTopic("messages");
         container.addMessageListener(redisMessageListener, topic);
         
         return container;

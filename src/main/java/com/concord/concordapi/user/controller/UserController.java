@@ -34,10 +34,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/{username}/subscribe/{serverId}")
-    public ResponseEntity<Void> subscribeServer(@PathVariable String username, @PathVariable Long serverId) {
-        userService.subscribeServer(username, serverId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+    
     
 }
