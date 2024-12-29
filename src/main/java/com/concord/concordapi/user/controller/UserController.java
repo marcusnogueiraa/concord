@@ -10,7 +10,6 @@ import com.concord.concordapi.user.dto.LoginUserDto;
 import com.concord.concordapi.user.dto.RecoveryJwtTokenDto;
 import com.concord.concordapi.user.service.UserService;
 
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -49,6 +49,12 @@ public class UserService {
                 .password(securityConfiguration.passwordEncoder().encode(
                     createUserDto.password())
                 ).build();
+
+        Integer code = getRandomCode();
+    }
+
+    public void persistUser(CreateUserDto createUserDto){
+        
         userRepository.save(newUser);
     }
 
@@ -57,6 +63,10 @@ public class UserService {
             throw new UserAlreadyExistsException("Email " + user.email() + " already exists.");
         if (userRepository.existsByUsername(user.username())) 
             throw new UserAlreadyExistsException("Username " + user.username() + " already exists.");
+    }
+
+    private Integer getRandomCode(){
+        
     }
 
 }
