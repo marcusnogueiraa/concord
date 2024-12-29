@@ -22,6 +22,19 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, value, durationInSeconds, TimeUnit.SECONDS);
     }
 
+    public void saveIfDontExists(String key, Object value, int durationInSeconds){
+        redisTemplate.opsForValue().setIfAbsent(key, value, durationInSeconds, TimeUnit.SECONDS);
+    }
+
+    public boolean exists(String key){
+        Object result = redisTemplate.opsForValue().get(key);
+        return result != null;
+    }
+
+    public Long increment(String key){
+        return redisTemplate.opsForValue().increment(key);
+    }
+
     public Object find(String key) {
         return redisTemplate.opsForValue().get(key);
     }

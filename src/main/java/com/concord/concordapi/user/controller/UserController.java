@@ -11,6 +11,8 @@ import com.concord.concordapi.user.dto.LoginUserDto;
 import com.concord.concordapi.user.dto.RecoveryJwtTokenDto;
 import com.concord.concordapi.user.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +24,9 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<RecoveryJwtTokenDto> authenticateUser(@RequestBody LoginUserDto loginUserDto) {
-        RecoveryJwtTokenDto token = userService.authenticateUser(loginUserDto);
+    public ResponseEntity<RecoveryJwtTokenDto> authenticateUser(@RequestBody LoginUserDto loginUserDto, HttpServletRequest request) {
+        String clientIp = request.getRemoteAddr();
+        RecoveryJwtTokenDto token = userService.authenticateUser(loginUserDto, clientIp);
         return ResponseEntity.ok(token);
     }
 
