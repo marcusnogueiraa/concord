@@ -1,4 +1,4 @@
-package com.concord.concordapi.user.exception;
+package com.concord.concordapi.auth.exception;
 
 public class UserAlreadyExistsException extends RuntimeException {
     

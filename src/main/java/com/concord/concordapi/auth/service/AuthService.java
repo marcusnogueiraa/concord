@@ -11,17 +11,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.concord.concordapi.user.entity.User;
-import com.concord.concordapi.user.exception.IncorrectCodeException;
-import com.concord.concordapi.user.exception.MaxRetryException;
-import com.concord.concordapi.user.exception.UserAlreadyExistsException;
+import com.concord.concordapi.auth.dto.CreateUserDto;
+import com.concord.concordapi.auth.dto.LoginUserDto;
+import com.concord.concordapi.auth.dto.RecoveryJwtTokenDto;
 import com.concord.concordapi.auth.entity.UserDetailsImpl;
+import com.concord.concordapi.auth.exception.IncorrectCodeException;
+import com.concord.concordapi.auth.exception.MaxRetryException;
+import com.concord.concordapi.auth.exception.UserAlreadyExistsException;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
 import com.concord.concordapi.shared.exception.SMTPServerException;
 import com.concord.concordapi.shared.service.EmailService;
 import com.concord.concordapi.shared.service.RedisService;
-import com.concord.concordapi.user.dto.CreateUserDto;
-import com.concord.concordapi.user.dto.LoginUserDto;
-import com.concord.concordapi.user.dto.RecoveryJwtTokenDto;
 import com.concord.concordapi.user.repository.UserRepository;
 
 @Service

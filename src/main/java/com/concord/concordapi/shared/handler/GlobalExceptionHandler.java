@@ -1,11 +1,11 @@
 package com.concord.concordapi.shared.handler;
 
+import com.concord.concordapi.auth.exception.IncorrectCodeException;
+import com.concord.concordapi.auth.exception.MaxRetryException;
+import com.concord.concordapi.auth.exception.UserAlreadyExistsException;
 import com.concord.concordapi.shared.dto.ErrorResponseDTO;
 import com.concord.concordapi.shared.exception.EntityNotFoundException;
 import com.concord.concordapi.shared.exception.SMTPServerException;
-import com.concord.concordapi.user.exception.IncorrectCodeException;
-import com.concord.concordapi.user.exception.MaxRetryException;
-import com.concord.concordapi.user.exception.UserAlreadyExistsException;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;

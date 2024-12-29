@@ -5,11 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.concord.concordapi.auth.dto.ConfirmationCode;
+import com.concord.concordapi.auth.dto.CreateUserDto;
+import com.concord.concordapi.auth.dto.LoginUserDto;
+import com.concord.concordapi.auth.dto.RecoveryJwtTokenDto;
 import com.concord.concordapi.auth.service.AuthService;
-import com.concord.concordapi.user.dto.ConfirmationCode;
-import com.concord.concordapi.user.dto.CreateUserDto;
-import com.concord.concordapi.user.dto.LoginUserDto;
-import com.concord.concordapi.user.dto.RecoveryJwtTokenDto;
 
 import jakarta.servlet.http.HttpServletRequest;
 
