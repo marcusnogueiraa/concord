@@ -9,7 +9,7 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.Topic;
 
-import com.concord.concordapi.shared.listener.RedisMessageListener;
+import com.concord.concordapi.websocket.listener.RedisMessageListener;
 
 @Configuration
 public class RedisConfiguration {
