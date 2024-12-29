@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
-import com.concord.concordapi.auth.service.AuthInfoService;
+import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.server.dto.ServerPutBodyDTO;
 import com.concord.concordapi.server.dto.ServerRequestBodyDTO;
 import com.concord.concordapi.server.entity.Server;
@@ -22,7 +22,7 @@ public class ServerService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private AuthInfoService authInfoService;
+    private AuthService authInfoService;
 
     public Server getById(Long id){
         Optional<Server> searchedServer = serverRepository.findById(id);

@@ -1,13 +1,13 @@
-package com.concord.concordapi.user.service;
+package com.concord.concordapi.auth.service;
 
 import java.security.SecureRandom;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.concord.concordapi.user.entity.User;
@@ -15,7 +15,6 @@ import com.concord.concordapi.user.exception.IncorrectCodeException;
 import com.concord.concordapi.user.exception.MaxRetryException;
 import com.concord.concordapi.user.exception.UserAlreadyExistsException;
 import com.concord.concordapi.auth.entity.UserDetailsImpl;
-import com.concord.concordapi.auth.service.JwtTokenService;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
 import com.concord.concordapi.shared.exception.SMTPServerException;
 import com.concord.concordapi.shared.service.EmailService;
@@ -26,7 +25,7 @@ import com.concord.concordapi.user.dto.RecoveryJwtTokenDto;
 import com.concord.concordapi.user.repository.UserRepository;
 
 @Service
-public class UserService {
+public class AuthService {
     
     @Autowired
     private UserRepository userRepository;
@@ -70,7 +69,7 @@ public class UserService {
         }
     }
 
-    public void createUser(CreateUserDto createUserDto){
+    public void registerUser(CreateUserDto createUserDto){
         verifyIfAlreadyExists(createUserDto);
         User newUser = User.builder()
                 .name(createUserDto.name())
@@ -87,6 +86,13 @@ public class UserService {
         User user = (User) redisService.find(key);
         if (user == null) throw new IncorrectCodeException("Incorrect code.");
         else userRepository.save(user);
+    }
+
+    public String getAuthenticatedUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated())
+            return authentication.getName();
+        return null;
     }
 
     private void verifyLoginAttempts(String username, String clientIp){
