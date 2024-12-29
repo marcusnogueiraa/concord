@@ -2,8 +2,12 @@ package com.concord.concordapi.shared.handler;
 
 import com.concord.concordapi.shared.dto.ErrorResponseDTO;
 import com.concord.concordapi.shared.exception.EntityNotFoundException;
+import com.concord.concordapi.shared.exception.SMTPServerException;
+import com.concord.concordapi.user.exception.IncorrectCodeException;
+import com.concord.concordapi.user.exception.MaxRetryException;
 import com.concord.concordapi.user.exception.UserAlreadyExistsException;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 
 import java.util.StringJoiner;
@@ -32,6 +36,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
+    @ExceptionHandler(MaxRetryException.class)
+    public ResponseEntity<ErrorResponseDTO> handleMaxRetry(MaxRetryException exc, HttpServletRequest request) {
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            exc.getMessage(),
+            HttpStatus.FORBIDDEN.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleNoResourceFound(NoResourceFoundException exc, HttpServletRequest request) {
         String message = exc.getMessage();
@@ -54,6 +67,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponseDTO> handleMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        String message = ex.getMessage();
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            message, 
+            HttpStatus.BAD_REQUEST.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(errorResponse);
+    } 
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
         String message = ex.getMessage();
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
             message, 
@@ -104,6 +127,25 @@ public class GlobalExceptionHandler {
             HttpStatus.CONFLICT.value(), 
             request.getRequestURI());
         return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(errorResponse);
+    }
+
+    @ExceptionHandler(IncorrectCodeException.class)
+    public ResponseEntity<ErrorResponseDTO>  handleIncorrectCode(IncorrectCodeException ex, HttpServletRequest request) {
+        String message = ex.getMessage();
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            message, 
+            HttpStatus.UNPROCESSABLE_ENTITY.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY.value()).body(errorResponse);
+    }
+
+    @ExceptionHandler(SMTPServerException.class)
+    public ResponseEntity<ErrorResponseDTO> handleSMTPServerError(SMTPServerException exc, HttpServletRequest request){
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            exc.getMessage(),
+            HttpStatus.INTERNAL_SERVER_ERROR.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)
