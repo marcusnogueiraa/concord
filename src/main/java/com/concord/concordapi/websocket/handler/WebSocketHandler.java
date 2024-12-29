@@ -10,15 +10,18 @@ import com.concord.concordapi.server.entity.Server;
 import com.concord.concordapi.shared.exception.EntityNotFoundException;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
-import com.concord.concordapi.websocket.entity.UserEvent;
+import com.concord.concordapi.websocket.entity.ClientMessage;
 import com.concord.concordapi.websocket.service.RedisService;
 import com.concord.concordapi.websocket.service.SessionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.transaction.Transactional;
 
 
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private RedisService redisService;
@@ -52,11 +55,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
         protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
             String username = (String) session.getAttributes().get("username");
             if (username != null) {
-                System.out.println("Mensagem recebida de " + username + ": " + message.getPayload());
                 String payload = message.getPayload();
-                String[] parts = payload.split(":", 4);
-                String channel = parts[0];
-                redisService.sendMessageToChannel(channel, message.getPayload());
+                ClientMessage clientMessage = objectMapper.readValue(payload, ClientMessage.class);
+                clientMessage.setUsername(username);
+                redisService.sendToChannel(clientMessage.getTo(), clientMessage);
+                
             } else {
                 session.sendMessage(new TextMessage("Você não está autenticado."));
             }
@@ -66,11 +69,16 @@ public class WebSocketHandler extends TextWebSocketHandler {
         @Override
         public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
             String username = (String) session.getAttributes().get("username");
-
-            sessionService.removeSession(username);
-            redisService.getRedisTemplate().opsForHash().delete(REDIS_SESSIONS_KEY, username);
-
-            UserEvent event = new UserEvent("USER_DISCONNECTED", username, "User has left");
-            
+            if (username != null) {
+                User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User not found"));
+                Set<Server> serversSubscribes = user.getServers();
+                for (Server server : serversSubscribes) {
+                    redisService.unsubscribeUserToServer(server, username);
+                }
+                sessionService.removeSession(username);
+                redisService.getRedisTemplate().opsForHash().delete(REDIS_SESSIONS_KEY, username);
+            }else {
+                session.close(CloseStatus.BAD_DATA);
+            }
         } 
 }
