@@ -3,7 +3,6 @@ package com.concord.concordapi.channel.entity;
 import java.time.LocalDateTime;
 
 import com.concord.concordapi.server.entity.Server;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,6 +37,7 @@ public class Channel {
     @ManyToOne
     @JoinColumn(name = "server_id", nullable = false) 
     private Server server;
+
     @Column(columnDefinition = "TEXT")
     private String description; 
     private LocalDateTime createdAt;

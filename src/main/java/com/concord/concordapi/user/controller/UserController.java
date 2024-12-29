@@ -11,6 +11,7 @@ import com.concord.concordapi.user.dto.RecoveryJwtTokenDto;
 import com.concord.concordapi.user.service.UserService;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,12 @@ public class UserController {
     @PostMapping
     public ResponseEntity<Void> createUser(@RequestBody CreateUserDto createUserDto) {
         userService.createUser(createUserDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/{username}/subscribe/{serverId}")
+    public ResponseEntity<Void> subscribeServer(@PathVariable String username, @PathVariable Long serverId) {
+        userService.subscribeServer(username, serverId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     
