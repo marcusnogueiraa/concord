@@ -1,5 +1,7 @@
 package com.concord.concordapi.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,9 +28,10 @@ public class UserPreference {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
-    @Column(name = "preference_key", nullable = false)
+    @Column(name = "preference_key", nullable = false, unique = true)
     private String preferenceKey;
 
     @Column(name = "preference_value", nullable = false)

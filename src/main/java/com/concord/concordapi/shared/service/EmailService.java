@@ -35,12 +35,22 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setTo(to);
         helper.setSubject("Confirmação de Email");
-        String htmlContent = getMessgae(code);
+        String htmlContent = getMessage(code);
+        helper.setText(htmlContent, true);
+        mailSender.send(message);
+    }
+    
+    public void sendForgotPasswordEmail(String to, String resetLink) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(to);
+        helper.setSubject("Password reset");
+        String htmlContent = getMessageForgotPassword(resetLink);
         helper.setText(htmlContent, true);
         mailSender.send(message);
     }
 
-    private String getMessgae(String code){
+    private String getMessage(String code){
         String htmlContent = "<!DOCTYPE html>" +
                 "<html>" +
                 "<head><title>Confirmação de Email</title></head>" +
@@ -51,6 +61,22 @@ public class EmailService {
                 "<h1>" + code + "</h1>" +
                 "<p>Por favor, insira este código para concluir seu registro.</p>" +
                 "<p>Se você não solicitou este código, ignore este email.</p>" +
+                "<hr>" +
+                "<footer><p>Este é um email automático, não responda.</p></footer>" +
+                "</body>" +
+                "</html>";
+        return htmlContent;
+    }
+    private String getMessageForgotPassword(String resetLink){
+        String htmlContent = "<!DOCTYPE html>" +
+                "<html>" +
+                "<head><title>Recuperação de senha</title></head>" +
+                "<body>" +
+                "<h2>Recuperação de senha</h2>" +
+                "<p>Olá,</p>" +
+                "<p>Se voce solicitou uma recuperação, clique no link para redefinir sua senha</p>" +
+                "<a href="+resetLink+">" + resetLink + "</a>" +
+                "<p>Se você não solicitou esta recuperação, ignore este email.</p>" +
                 "<hr>" +
                 "<footer><p>Este é um email automático, não responda.</p></footer>" +
                 "</body>" +
