@@ -20,4 +20,8 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User "+username+" not found."));
         return UserMapper.toDto(user);
     }
+
+    public Long findUserId(String username) {
+        return userRepository.getIdByUsername(username);
+    }
 }
