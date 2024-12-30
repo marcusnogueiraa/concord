@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserMessageContent {
-    private String from; 
-    private String to;   
+    private long from; 
+    private long to;   
     private String message;
     private Long timestamp;
     private Boolean isRead;

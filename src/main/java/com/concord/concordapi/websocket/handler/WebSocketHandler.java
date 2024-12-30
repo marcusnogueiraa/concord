@@ -5,7 +5,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.concord.concordapi.websocket.entity.ClientMessage;
 import com.concord.concordapi.websocket.service.SessionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
@@ -13,16 +15,34 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Autowired
     private SessionService sessionService;
     
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private UserMessageHandler userMessageHandler;
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-
+        System.out.println("User connected");
     }
     
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        ClientMessage<?> clientMessage = objectMapper.readValue(message.getPayload(), ClientMessage.class);
+
     }
     
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-    } 
+    }
+
+    private void delegateHandler(ClientMessage<?> clientMessage, WebSocketSession session){
+        switch (clientMessage.getEventType()) {
+            case USER_MESSAGE:
+                handleUserMessage(session, clientMessage.getContent());
+                break;
+            default:
+                System.out.println("Tipo de evento desconhecido: " + clientMessage.getEventType());
+
+    }
 }
