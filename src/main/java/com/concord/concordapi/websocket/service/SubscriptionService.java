@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class RedisService {
+public class SubscriptionService {
 
     private ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
@@ -27,7 +27,6 @@ public class RedisService {
             String jsonMessage = objectMapper.writeValueAsString(clientMessage);
             redisTemplate.convertAndSend("server:"+to, jsonMessage);
         } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         

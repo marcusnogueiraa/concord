@@ -8,7 +8,7 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
 import com.concord.concordapi.websocket.entity.ClientMessage;
-import com.concord.concordapi.websocket.service.RedisService;
+import com.concord.concordapi.websocket.service.SubscriptionService;
 import com.concord.concordapi.websocket.service.SessionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -21,7 +21,7 @@ public class RedisMessageListener implements MessageListener {
     private SessionService sessionService;
 
     @Autowired
-    private RedisService redisService;
+    private SubscriptionService subscriptionService;
 
     private final ObjectMapper objectMapper;
 
@@ -67,7 +67,7 @@ public class RedisMessageListener implements MessageListener {
         System.out.println("usuario desconectado");
     }
     private void handleToServerMessage(ClientMessage clientMessage){
-        Set<String> users = redisService.getUsersSubscribedToServer(clientMessage.getTo());
+        Set<String> users = subscriptionService.getUsersSubscribedToServer(clientMessage.getTo());
         for(String user : users){
             try {
                 sessionService.sendMessageToUser(user, clientMessage);
