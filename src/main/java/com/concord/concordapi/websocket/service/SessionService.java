@@ -28,6 +28,10 @@ public class SessionService {
         return sessions.get(username);
     }
 
+    public String getUsernameBySession(WebSocketSession session) {
+        return (String) session.getAttributes().get("username");
+    }
+
     public void sendMessageToUser(String username, ClientMessage clientMessage) throws Exception {
         WebSocketSession session = sessions.get(username);
         if (session != null && session.isOpen()) {
