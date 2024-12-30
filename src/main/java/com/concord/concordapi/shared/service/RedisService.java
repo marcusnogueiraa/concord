@@ -2,7 +2,6 @@ package com.concord.concordapi.shared.service;
 
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 

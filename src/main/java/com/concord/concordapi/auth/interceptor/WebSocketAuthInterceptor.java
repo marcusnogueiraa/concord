@@ -33,7 +33,6 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
             String username = jwtTokenService.getSubjectFromToken(jwtToken);
             Long userId = userService.findUserId(username);
             attributes.put("userId", userId);
-      
         }
 
         return true;  // Permite o handshake continuar

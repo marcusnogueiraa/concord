@@ -14,5 +14,4 @@ public class UserMessageContent {
     private long to;   
     private String message;
     private Long timestamp;
-    private Boolean isRead;
 }

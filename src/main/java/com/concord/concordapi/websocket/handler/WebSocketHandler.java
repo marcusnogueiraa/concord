@@ -6,6 +6,7 @@ import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.concord.concordapi.websocket.entity.ClientMessage;
+import com.concord.concordapi.websocket.entity.content.UserMessageContent;
 import com.concord.concordapi.websocket.service.SessionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -24,25 +25,26 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         System.out.println("User connected");
+        sessionService.saveSession(session);
     }
     
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         ClientMessage<?> clientMessage = objectMapper.readValue(message.getPayload(), ClientMessage.class);
-
+        delegateHandler(clientMessage, session);
     }
     
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
     }
 
-    private void delegateHandler(ClientMessage<?> clientMessage, WebSocketSession session){
+    private void delegateHandler(ClientMessage<?> clientMessage, WebSocketSession session) throws Exception {
         switch (clientMessage.getEventType()) {
-            case USER_MESSAGE:
-                handleUserMessage(session, clientMessage.getContent());
-                break;
-            default:
-                System.out.println("Tipo de evento desconhecido: " + clientMessage.getEventType());
-
+            case USER_MESSAGE -> {
+                UserMessageContent content = objectMapper.convertValue(clientMessage.getContent(), UserMessageContent.class);
+                userMessageHandler.handle(content, session);
+            }
+            default -> throw new IllegalArgumentException("Unknown EventType: " + clientMessage.getEventType());
+        }
     }
 }

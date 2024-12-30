@@ -14,33 +14,32 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SessionService {
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
+    private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
-    public void saveSession(String username, WebSocketSession session) {
-        sessions.put(username, session);
+    public void saveSession(WebSocketSession session) {
+        long userId = getUserIdBySession(session);
+        sessions.put(userId, session);
     }
 
-    public void removeSession(String username) {
-        sessions.remove(username);
+    public void removeSession(Long userId) {
+        sessions.remove(userId);
     }
 
-    public WebSocketSession getSession(String username) {
-        return sessions.get(username);
+    public WebSocketSession getSession(Long userId) {
+        return sessions.get(userId);
     }
 
-    public String getUsernameBySession(WebSocketSession session) {
-        return (String) session.getAttributes().get("username");
+    public Long getUserIdBySession(WebSocketSession session) {
+        return (Long) session.getAttributes().get("userId");
     }
 
-    public void sendMessageToUser(String username, ClientMessage clientMessage) throws Exception {
-        WebSocketSession session = sessions.get(username);
+    public void sendMessageToUser(Long userId, ClientMessage<?> clientMessage) throws Exception {
+        WebSocketSession session = sessions.get(userId);
         if (session != null && session.isOpen()) {
-            System.out.println("aki é pra enviar uma mensagem");
             String jsonMessage = objectMapper.writeValueAsString(clientMessage);
             session.sendMessage(new TextMessage(jsonMessage));
         } else {
-            // TODO: Search for node in the cluster responsible for managing the User's WebSocketSession
-            System.out.println("Sessão não encontrada ou já fechada para o usuário: " + username);
+            System.out.println("Sessão não encontrada ou já fechada para o usuário: " + userId);
         }
     }
 }
