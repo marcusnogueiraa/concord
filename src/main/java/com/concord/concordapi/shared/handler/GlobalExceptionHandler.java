@@ -1,6 +1,7 @@
 package com.concord.concordapi.shared.handler;
 
 import com.concord.concordapi.auth.exception.IncorrectCodeException;
+import com.concord.concordapi.auth.exception.IncorrectTokenException;
 import com.concord.concordapi.auth.exception.MaxRetryException;
 import com.concord.concordapi.auth.exception.UserAlreadyExistsException;
 import com.concord.concordapi.shared.dto.ErrorResponseDTO;
@@ -137,6 +138,15 @@ public class GlobalExceptionHandler {
             HttpStatus.UNPROCESSABLE_ENTITY.value(), 
             request.getRequestURI());
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY.value()).body(errorResponse);
+    }
+    @ExceptionHandler(IncorrectTokenException.class)
+    public ResponseEntity<ErrorResponseDTO>  handleIncorrectCode(IncorrectTokenException ex, HttpServletRequest request) {
+        String message = ex.getMessage();
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            message, 
+            HttpStatus.BAD_REQUEST.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(errorResponse);
     }
 
     @ExceptionHandler(SMTPServerException.class)

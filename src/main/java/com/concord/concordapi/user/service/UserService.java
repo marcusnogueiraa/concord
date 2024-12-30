@@ -30,6 +30,7 @@ public class UserService {
         User user = userRepository.findByUsername(authInfoService.getAuthenticatedUsername())
                 .orElseThrow(()-> new EntityNotFoundException("User authenticated not found"));
         user.setPassword(securityConfiguration.passwordEncoder().encode(password));
+        userRepository.save(user);
         return UserMapper.toDto(user);
     }
 }

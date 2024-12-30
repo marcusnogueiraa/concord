@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -51,7 +52,7 @@ public class Server {
     private List<Channel> channels;
 
     
-    @ManyToMany(mappedBy = "servers")
+    @ManyToMany(mappedBy = "servers", fetch = FetchType.LAZY)
     @JsonBackReference  // Evita a recursão ao serializar
     private Set<User> users;
     
