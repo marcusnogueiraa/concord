@@ -16,7 +16,7 @@ public class SessionService {
 
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
-    public void addSession(String username, WebSocketSession session) {
+    public void saveSession(String username, WebSocketSession session) {
         sessions.put(username, session);
     }
 
@@ -35,6 +35,7 @@ public class SessionService {
             String jsonMessage = objectMapper.writeValueAsString(clientMessage);
             session.sendMessage(new TextMessage(jsonMessage));
         } else {
+            // TODO: Search for node in the cluster responsible for managing the User's WebSocketSession
             System.out.println("Sessão não encontrada ou já fechada para o usuário: " + username);
         }
     }
