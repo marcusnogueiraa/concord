@@ -21,7 +21,8 @@ public class SessionService {
         sessions.put(userId, session);
     }
 
-    public void removeSession(Long userId) {
+    public void removeSession(WebSocketSession session) {
+        long userId = getUserIdBySession(session);
         sessions.remove(userId);
     }
 
