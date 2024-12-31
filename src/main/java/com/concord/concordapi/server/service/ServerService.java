@@ -66,7 +66,6 @@ public class ServerService {
         }
   
         for (User user : server.getUsers()) {
-            System.out.println("removendo Server do user: "+user.getName());
             user.getServers().remove(server);
             userRepository.save(user);  // Salve os usuários para garantir que a relação seja removida
         }

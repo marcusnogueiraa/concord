@@ -1,11 +1,16 @@
-package com.concord.concordapi.server.e2e;
+package com.concord.concordapi.server.e2e.controller;
 
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -14,12 +19,20 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.servlet.function.ServerResponse;
 
+import com.concord.concordapi.server.dto.ServerDTO;
+import com.concord.concordapi.server.e2e.responses.ServerExpectedDTO;
+import com.concord.concordapi.server.e2e.responses.UserExpectedDTO;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
+import com.concord.concordapi.user.dto.UserRequestDto;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -27,6 +40,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @AutoConfigureMockMvc
 public class ServerControllerTest {
 
+    @Value("${spring.datasource.url}")
+    private String url;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -48,36 +63,57 @@ public class ServerControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn().getResponse().getContentAsString();
         token = extractTokenFromResponse(token);
-        System.out.println(extractTokenFromResponse(token));
     }
 
     @Test
     public void testCreateServer() throws Exception {
         String jsonContent = "{\"name\":\"Server 1\",\"ownerId\":\"1\"}";
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/servers")
+        
+        String response = mockMvc.perform(MockMvcRequestBuilders.post("/api/servers")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonContent))
-                .andExpect(MockMvcResultMatchers.status().isCreated());    
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andReturn().getResponse().getContentAsString();   
+
+        response = response.replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ServerExpectedDTO actualResponse = objectMapper.readValue(response, ServerExpectedDTO.class);
+        ServerExpectedDTO expectedResponse = new ServerExpectedDTO(1L, "Server 1", new UserExpectedDTO("marcus", "marcus", "marcus@gmail.com", null), List.of());
+        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     public void testGetServerById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/servers/1")
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/servers/1")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(""))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();  
+
+        response = response.replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ServerExpectedDTO actualResponse = objectMapper.readValue(response, ServerExpectedDTO.class);
+        ServerExpectedDTO expectedResponse = new ServerExpectedDTO(1L, "Server 1", new UserExpectedDTO("marcus", "marcus", "marcus@gmail.com", null), List.of());
+        assertEquals(expectedResponse, actualResponse);
+        
     }
 
     @Test
     public void testUpdateServer() throws Exception {
         String jsonContent = "{\"name\":\"Server 1 modificado\"}";
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/servers/1")
+        String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/servers/1")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonContent))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();  
+        response = response.replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ServerExpectedDTO actualResponse = objectMapper.readValue(response, ServerExpectedDTO.class);
+        ServerExpectedDTO expectedResponse = new ServerExpectedDTO(1L, "Server 1 modificado", new UserExpectedDTO("marcus", "marcus", "marcus@gmail.com", null), List.of());
+        assertEquals(expectedResponse, actualResponse);
     }
     @Test
     public void testSubscribeServer() throws Exception {
