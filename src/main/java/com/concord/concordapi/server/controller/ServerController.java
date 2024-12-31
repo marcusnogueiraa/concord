@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.concord.concordapi.server.dto.ServerPutBodyDTO;
 import com.concord.concordapi.server.dto.ServerCreateBodyDTO;
 import com.concord.concordapi.server.dto.ServerDTO;
-import com.concord.concordapi.server.entity.Server;
 import com.concord.concordapi.server.service.ServerService;
-import com.concord.concordapi.user.dto.UserRequestDto;
 
 import jakarta.validation.Valid;
 

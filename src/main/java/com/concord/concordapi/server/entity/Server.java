@@ -3,7 +3,6 @@ package com.concord.concordapi.server.entity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -11,14 +10,10 @@ import com.concord.concordapi.channel.dto.ChannelDTO;
 import com.concord.concordapi.channel.entity.Channel;
 import com.concord.concordapi.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -50,7 +45,7 @@ public class Server {
     private String name;
 
     @ManyToOne // Define a relação Many-to-One
-    @JoinColumn(name = "owner_id", nullable = false) // Mapeia a chave estrangeira
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
     @OneToMany(mappedBy = "server", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -74,14 +69,7 @@ public class Server {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-    @Override
-    public String toString() {
-        return "Server{id=" + id + ", name='" + name + "'}";
-    }
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name); 
-    }
+
     public List<ChannelDTO> getChannelDTOs() {
         List<ChannelDTO> channelsDTO = new ArrayList<>();
         if(channels!=null){
