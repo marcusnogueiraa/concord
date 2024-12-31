@@ -46,13 +46,15 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
     @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest forgotPasswordRequest) {
-        authService.sendForgotPassword(forgotPasswordRequest);
+    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest forgotPasswordRequest, HttpServletRequest request) {
+        String clientIp = request.getRemoteAddr();
+        authService.sendForgotPassword(forgotPasswordRequest, clientIp);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
     @PostMapping("/reset-password")
-    public ResponseEntity<Void> resetPassword(@RequestParam String token, @RequestBody @Valid ResetPasswordRequest request) {
-        authService.resetPassword(token, request.newPassword());
+    public ResponseEntity<Void> resetPassword(@RequestParam String token, @RequestBody @Valid ResetPasswordRequest requestReset, HttpServletRequest request) {
+        String clientIp = request.getRemoteAddr();
+        authService.resetPassword(token, requestReset.newPassword(), clientIp);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
     
