@@ -39,11 +39,13 @@ public class JwtTokenService {
     }
 
     public boolean isTokenValid(String token) {
+        System.out.println("VERIFICANDO SE VALIDO: "+token);
         try {
             Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
             JWT.require(algorithm).withIssuer(ISSUER).build().verify(token);
             return true;
         } catch (JWTVerificationException exc) {
+            System.out.println("DEU ERRADO: "+exc.getMessage());
             return false;
         }
     }

@@ -30,9 +30,10 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-
+            System.out.println("teste AKIIII");
         String token = getTokenFromRequest(request);
         if (token != null && jwtTokenService.isTokenValid(token)) {
+            System.out.println("PASSOU");
             String username = jwtTokenService.getSubjectFromToken(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             Authentication authentication = new UsernamePasswordAuthenticationToken(

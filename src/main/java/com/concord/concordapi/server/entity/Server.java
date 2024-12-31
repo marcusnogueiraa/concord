@@ -1,14 +1,20 @@
 package com.concord.concordapi.server.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.concord.concordapi.channel.dto.ChannelDTO;
 import com.concord.concordapi.channel.entity.Channel;
 import com.concord.concordapi.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -47,13 +53,12 @@ public class Server {
     @JoinColumn(name = "owner_id", nullable = false) // Mapeia a chave estrangeira
     private User owner;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "server", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Channel> channels;
 
-    
-    @ManyToMany(mappedBy = "servers", fetch = FetchType.LAZY)
-    @JsonBackReference  // Evita a recursão ao serializar
+    @ManyToMany(mappedBy = "servers")
+    @JsonBackReference
     private Set<User> users;
     
     private LocalDateTime createdAt;
@@ -75,8 +80,18 @@ public class Server {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id, name); // Usando apenas atributos simples
+        return Objects.hash(id, name); 
     }
-
+    public List<ChannelDTO> getChannelDTOs() {
+        List<ChannelDTO> channelsDTO = new ArrayList<>();
+        if(channels!=null){
+            channelsDTO = this.channels.stream()
+                .map(channel -> new ChannelDTO(channel.getId(), channel.getName(), channel.getDescription())) // Mapeia para o record
+                .collect(Collectors.toList());
+            return channelsDTO;
+        }
+        
+        return channelsDTO;
+    }
   
 }

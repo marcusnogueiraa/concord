@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.concord.concordapi.server.dto.ServerPutBodyDTO;
-import com.concord.concordapi.server.dto.ServerRequestBodyDTO;
+import com.concord.concordapi.server.dto.ServerCreateBodyDTO;
+import com.concord.concordapi.server.dto.ServerDTO;
 import com.concord.concordapi.server.entity.Server;
 import com.concord.concordapi.server.service.ServerService;
+import com.concord.concordapi.user.dto.UserRequestDto;
 
 import jakarta.validation.Valid;
 
@@ -27,27 +29,26 @@ public class ServerController {
     
 
     @GetMapping("/{id}")
-    public ResponseEntity<Server> getById(@PathVariable Long id){
-        Server server = serverService.getById(id);
-        
+    public ResponseEntity<ServerDTO> getById(@PathVariable Long id){
+        ServerDTO server = serverService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(server);
     }
 
     @PostMapping
-    public ResponseEntity<Server> create(@RequestBody @Valid ServerRequestBodyDTO server) {
-        Server createdServer = serverService.create(server);
+    public ResponseEntity<ServerDTO> create(@RequestBody @Valid ServerCreateBodyDTO server) {
+        ServerDTO createdServer = serverService.create(server);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdServer);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         serverService.deleteById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); 
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Server> updateById(@RequestBody @Valid ServerPutBodyDTO server, @PathVariable Long id) {
-        Server updatedServer = serverService.updateById(id, server);
+    public ResponseEntity<ServerDTO> updateById(@RequestBody @Valid ServerPutBodyDTO server, @PathVariable Long id) {
+        ServerDTO updatedServer = serverService.updateById(id, server);
         return ResponseEntity.status(HttpStatus.OK).body(updatedServer); 
     }
 
