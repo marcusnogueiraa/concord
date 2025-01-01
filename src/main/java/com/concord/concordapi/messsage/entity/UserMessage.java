@@ -6,17 +6,15 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Instant;
-
 @Data
 @Builder
 @Document(collection = "user_messages")
 public class UserMessage {
     @Id
     private String id;
-    private String fromUserId;      
-    private String toUserId;        
+    private Long fromUserId;      
+    private Long toUserId;        
     private String content;         
     private boolean isRead;         
-    private Instant timestamp;      
+    private Long timestamp;      
 }
