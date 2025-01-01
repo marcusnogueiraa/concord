@@ -1,6 +1,7 @@
 package com.concord.concordapi.auth.service;
 
 import java.security.SecureRandom;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,16 +10,20 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.auth.dto.CreateUserDto;
+import com.concord.concordapi.auth.dto.ForgotPasswordRequest;
 import com.concord.concordapi.auth.dto.LoginUserDto;
 import com.concord.concordapi.auth.dto.RecoveryJwtTokenDto;
 import com.concord.concordapi.auth.entity.UserDetailsImpl;
 import com.concord.concordapi.auth.exception.IncorrectCodeException;
+import com.concord.concordapi.auth.exception.IncorrectTokenException;
 import com.concord.concordapi.auth.exception.MaxRetryException;
 import com.concord.concordapi.auth.exception.UserAlreadyExistsException;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
+import com.concord.concordapi.shared.exception.EntityNotFoundException;
 import com.concord.concordapi.shared.exception.SMTPServerException;
 import com.concord.concordapi.shared.service.EmailService;
 import com.concord.concordapi.shared.service.RedisService;
@@ -47,7 +52,10 @@ public class AuthService {
 
     private final static String CREATED_USER_CODE_KEY = "user:created_user_code:";
     private final static String LOGIN_ATTEMPTS_KEY = "user:login_attempts:";
-    private final static String BLOCKED_IP_KEY = "user:blocked_ip:";
+    private final static String FORGOT_PASSWORD_ATTEMPTS_KEY = "user:forgot_password_attempts:";
+    private final static String BLOCKED_LOGIN_IP_KEY = "user:blocked_login_ip:";
+    private final static String BLOCKED_FORGOT_PASSWORD_IP_KEY = "user:blocked_forgot_password_ip:";
+    private final static String RESET_TOKEN_KEY = "user:reset_token:";
     private static final int MAX_ATTEMPTS = 5; 
     private static final int BLOCK_TIME_IN_SECONDS = 900; 
     private final static int EMAIL_EXPIRE_TIME_IN_SECONDS = 300;
@@ -88,6 +96,36 @@ public class AuthService {
         else userRepository.save(user);
     }
 
+    public void sendForgotPassword(@RequestBody ForgotPasswordRequest request, String clientIp){
+        User user = userRepository.findByEmail(request.email())
+            .orElseThrow(() -> new RuntimeException("User not found with email "+request.email()));
+        verifyForgotPasswordAttempts(user.getUsername(), clientIp);
+        String token = UUID.randomUUID().toString();
+        
+        
+        redisService.save(RESET_TOKEN_KEY + token, user.getUsername(), EMAIL_EXPIRE_TIME_IN_SECONDS);
+
+        String resetLink = "http://localhost:8080/api/auth/reset-password?token=" + token;
+        try{
+            emailService.sendForgotPasswordEmail(user.getEmail(), resetLink);
+            incrementForgotPasswordAttempts(user.getUsername(), clientIp);
+        } catch (Exception err) {
+            throw new SMTPServerException("SMTP Server Fail");
+        }
+        
+    }
+    public void resetPassword(String token, String newPassword, String clientIp) {
+        String username = (String) redisService.find(RESET_TOKEN_KEY + token);
+        if(username == null){
+            throw new IncorrectTokenException("The reset password token is malformed, invalid or expired.");
+        }
+        User user = userRepository.findByUsername(username).orElseThrow(()->new EntityNotFoundException("User dont find"));
+        user.setPassword(securityConfiguration.passwordEncoder().encode(newPassword));
+        userRepository.save(user);
+        clearForgotPasswordAttempts(username, clientIp);
+        redisService.delete(RESET_TOKEN_KEY+token);
+        }
+
     public String getAuthenticatedUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated())
@@ -101,14 +139,24 @@ public class AuthService {
     }
 
     private void verifyLoginAttempts(String username, String clientIp){
-        String key = BLOCKED_IP_KEY + clientIp;
+        String key = BLOCKED_LOGIN_IP_KEY + clientIp;
         boolean ipAddressIsBlocked = redisService.exists(key);
         if (ipAddressIsBlocked)
             throw new MaxRetryException("Ip Address " + clientIp + " login max retry.");
     }
+    private void verifyForgotPasswordAttempts(String username, String clientIp){
+        String key = BLOCKED_FORGOT_PASSWORD_IP_KEY + clientIp;
+        boolean ipAddressIsBlocked = redisService.exists(key);
+        if (ipAddressIsBlocked)
+            throw new MaxRetryException("Ip Address " + clientIp + " forgot password max retry.");
+    }
 
     private void clearLoginAttempts(String username, String clientIp){
         String key = LOGIN_ATTEMPTS_KEY + ":" + clientIp + ":" + username;
+        redisService.delete(key);
+    }
+    private void clearForgotPasswordAttempts(String username, String clientIp){
+        String key = FORGOT_PASSWORD_ATTEMPTS_KEY + ":" + clientIp + ":" + username;
         redisService.delete(key);
     }
 
@@ -118,7 +166,15 @@ public class AuthService {
         Long attempts = redisService.increment(key);
         
         if (attempts >= MAX_ATTEMPTS) 
-            redisService.save(BLOCKED_IP_KEY + clientIp, 1, BLOCK_TIME_IN_SECONDS);
+            redisService.save(BLOCKED_LOGIN_IP_KEY + clientIp, 1, BLOCK_TIME_IN_SECONDS);
+    }
+    private void incrementForgotPasswordAttempts(String username, String clientIp){
+        String key = FORGOT_PASSWORD_ATTEMPTS_KEY + ":" + clientIp + ":" + username;
+        redisService.saveIfDontExists(key, 0, BLOCK_TIME_IN_SECONDS);
+        Long attempts = redisService.increment(key);
+        
+        if (attempts >= MAX_ATTEMPTS) 
+            redisService.save(BLOCKED_FORGOT_PASSWORD_IP_KEY + clientIp, 1, BLOCK_TIME_IN_SECONDS);
     }
 
     private void verifyIfAlreadyExists(CreateUserDto user){

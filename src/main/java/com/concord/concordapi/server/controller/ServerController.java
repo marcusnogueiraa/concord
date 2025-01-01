@@ -48,7 +48,7 @@ public class ServerController {
     @PutMapping("/{id}")
     public ResponseEntity<Server> updateById(@RequestBody @Valid ServerPutBodyDTO server, @PathVariable Long id) {
         Server updatedServer = serverService.updateById(id, server);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(updatedServer); 
+        return ResponseEntity.status(HttpStatus.OK).body(updatedServer); 
     }
 
     @PostMapping("/{serverId}/subscribe/{username}")
