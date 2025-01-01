@@ -3,6 +3,8 @@ package com.concord.concordapi.messsage.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,5 +41,14 @@ public class UserMessageController {
     public ResponseEntity<?> markAllMessagesAsRead(@RequestBody @Valid UserMessageRequestDto userMessageRequest){
         userMessageService.markAllMessagesAsRead(userMessageRequest.toUserId(), userMessageRequest.fromUserId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/chat")
+    public ResponseEntity<Page<UserMessageResponseDto>> getChatMessages(
+            @RequestParam Long toUserId,
+            @RequestParam Long fromUserId,
+            Pageable pageable) {
+        Page<UserMessageResponseDto> messagesPage = userMessageService.getChatMessages(toUserId, fromUserId, pageable);
+        return ResponseEntity.ok(messagesPage);
     }
 }

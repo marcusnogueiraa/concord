@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.concord.concordapi.messsage.dto.request.UserMessageRequestDto;
@@ -45,5 +47,18 @@ public class UserMessageService {
                         message.getMessage(),
                         message.getTimestamp()))
                 .collect(Collectors.toList());
+    }
+
+    public Page<UserMessageResponseDto> getChatMessages(Long toUserId, Long fromUserId, Pageable pageable) {
+        Page<UserMessage> messagesPage = userMessageRepository.findByToUserIdAndFromUserIdOrToUserIdAndFromUserId(
+                toUserId, fromUserId, fromUserId, toUserId, pageable
+        );
+
+        return messagesPage.map(message -> new UserMessageResponseDto(
+                message.getFromUserId(),
+                message.getToUserId(),
+                message.getMessage(),
+                message.getTimestamp()
+        ));
     }
 }
