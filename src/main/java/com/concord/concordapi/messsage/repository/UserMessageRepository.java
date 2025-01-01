@@ -4,11 +4,13 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
 import org.springframework.stereotype.Repository;
 
+import com.concord.concordapi.messsage.entity.UserChatSummary;
 import com.concord.concordapi.messsage.entity.UserMessage;
 
 @Repository
@@ -23,4 +25,16 @@ public interface UserMessageRepository extends MongoRepository<UserMessage, Stri
     Page<UserMessage> findByToUserIdAndFromUserIdOrToUserIdAndFromUserId(
         Long toUserId, Long fromUserId, Long fromUserIdReversed, Long toUserIdReversed, Pageable pageable
     );
+
+    @Aggregation(pipeline = {
+    "{ '$match': { 'toUserId': ?0, 'isRead': false } }",
+    "{ '$group': { " +
+    "   '_id': '$fromUserId', " +
+    "   'latestMessageTimestamp': { '$max': '$timestamp' }, " +
+    "   'unreadMessagesCount': { '$sum': 1 } " + 
+    "} }",
+    "{ '$sort': { 'latestMessageTimestamp': -1 } }"
+    })
+    List<UserChatSummary> findUnreadChatSummaries(Long toUserId);
+
 }

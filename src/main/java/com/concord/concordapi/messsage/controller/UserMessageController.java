@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.messsage.dto.request.UserMessageRequestDto;
+import com.concord.concordapi.messsage.dto.response.UserChatSummaryDto;
 import com.concord.concordapi.messsage.dto.response.UserMessageResponseDto;
 import com.concord.concordapi.messsage.service.UserMessageService;
 
@@ -31,25 +32,24 @@ public class UserMessageController {
     @Autowired
     private AuthService authService;
 
-    @GetMapping("/unread")
-    public ResponseEntity<List<UserMessageResponseDto>> getUnreadMessages (
-        @RequestParam Long toUserId, @RequestParam Long fromUserId){
-        
-        List<UserMessageResponseDto> unreadMessages = userMessageService.getUnreadMessages(toUserId, fromUserId);
-        return ResponseEntity.ok(unreadMessages);
+    @GetMapping("/unread-chats")
+    public ResponseEntity<List<UserChatSummaryDto>> getUnreadChatSummaries(){
+        Long userId = authService.getAuthenticatedUserId();
+        List<UserChatSummaryDto> unreadChats = userMessageService.getUnreadChatSummaries(userId);
+        return ResponseEntity.ok(unreadChats);
     }
-
     
     @PatchMapping("/read")
     public ResponseEntity<?> markAllMessagesAsRead(@RequestBody @Valid UserMessageRequestDto userMessageRequest){
-        userMessageService.markAllMessagesAsRead(userMessageRequest.toUserId(), userMessageRequest.fromUserId());
+        Long authenticatedUserId = authService.getAuthenticatedUserId();
+        userMessageService.markAllMessagesAsRead(authenticatedUserId, userMessageRequest.fromUserId());
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/chat")
     public ResponseEntity<Page<UserMessageResponseDto>> getChatMessages(
-            @RequestParam Long toUserId,
-            @RequestParam Long fromUserId,
+            @RequestParam("toUserId") Long toUserId,
+            @RequestParam("fromUserId") Long fromUserId,
             Pageable pageable) {
         
         checkIfTheAuthenticatedUserHasAccessToChat(toUserId, fromUserId);

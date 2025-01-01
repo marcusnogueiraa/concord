@@ -21,15 +21,14 @@ public class UserMessageHandler {
     
     protected void handle(UserMessageContent content, WebSocketSession session){
         try {
-            sendMessage(content, session);
-            persistMessage(content);
+            sendMessageAndPersist(content, session);
         } catch (Exception e) {
             System.out.println("Erro ao enviar mensagem para o usuário: " + e.getMessage());
             e.printStackTrace();
         }
     }
     
-    private void sendMessage(UserMessageContent content, WebSocketSession session) throws Exception {
+    private void sendMessageAndPersist(UserMessageContent content, WebSocketSession session) throws Exception {
         Long senderId = sessionService.getUserIdBySession(session);
         Long recipientId = content.getToUserId();
 
@@ -37,11 +36,8 @@ public class UserMessageHandler {
 
         sessionService.sendMessageToUser(senderId, clientMessage); 
         sessionService.sendMessageToUser(recipientId, clientMessage);   
+    
         userMessageService.saveUserMessageContent(clientMessage.getContent());
-    }
-
-    private void persistMessage(UserMessageContent content){
-        System.out.println("Simulate Persist Message");
     }
 
     private ClientMessage<UserMessageContent> buildMessage(UserMessageContent content, Long senderId){

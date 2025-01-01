@@ -28,7 +28,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        System.out.println("User connected");
+        Long userId = sessionService.getUserIdBySession(session);
+        System.out.println("User connected :" + userId);
         sessionService.saveSession(session);
     }
     
@@ -40,6 +41,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
     
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        Long userId = sessionService.getUserIdBySession(session);
+        System.out.println("User disconnected :" + userId);
         sessionService.removeSession(session);
     }
 
