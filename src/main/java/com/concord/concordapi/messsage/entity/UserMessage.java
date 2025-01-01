@@ -14,7 +14,7 @@ public class UserMessage {
     private String id;
     private Long fromUserId;      
     private Long toUserId;        
-    private String content;         
+    private String message;         
     private boolean isRead;         
     private Long timestamp;      
 }

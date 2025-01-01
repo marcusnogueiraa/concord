@@ -31,7 +31,7 @@ public class UserMessageHandler {
     
     private void sendMessage(UserMessageContent content, WebSocketSession session) throws Exception {
         Long senderId = sessionService.getUserIdBySession(session);
-        Long recipientId = content.getTo();
+        Long recipientId = content.getToUserId();
 
         ClientMessage<UserMessageContent> clientMessage = buildMessage(content, senderId);
 
@@ -45,7 +45,7 @@ public class UserMessageHandler {
     }
 
     private ClientMessage<UserMessageContent> buildMessage(UserMessageContent content, Long senderId){
-        content.setFrom(senderId);
+        content.setFromUserId(senderId);
         content.setTimestamp(System.currentTimeMillis());
         return ClientMessage.<UserMessageContent>builder()
                 .eventType(EventType.USER_MESSAGE)

@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserMessageContent {
-    private long from; 
-    private long to;   
+    private long fromUserId; 
+    private long toUserId;   
     private String message;
     private Long timestamp;
 }
