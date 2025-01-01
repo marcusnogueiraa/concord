@@ -32,8 +32,8 @@ public class UserMessageService {
     }
 
     @Transactional
-    public void markAllMessagesAsRead(UserMessageRequestDto userMessageRequest) {
-        userMessageRepository.markMessagesAsRead(userMessageRequest.toUserId(), userMessageRequest.fromUserId());
+    public void markAllMessagesAsRead(Long toUserId, Long fromUserId) {
+        userMessageRepository.markMessagesAsRead(toUserId, fromUserId);
     }
 
     public List<UserMessageResponseDto> getUnreadMessages(Long toUserId, Long fromUserId) {
