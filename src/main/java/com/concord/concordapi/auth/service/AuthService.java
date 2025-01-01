@@ -133,6 +133,11 @@ public class AuthService {
         return null;
     }
 
+    public Long getAuthenticatedUserId(){
+        String username = getAuthenticatedUsername();
+        return userRepository.getIdByUsername(username);
+    }
+
     private void verifyLoginAttempts(String username, String clientIp){
         String key = BLOCKED_LOGIN_IP_KEY + clientIp;
         boolean ipAddressIsBlocked = redisService.exists(key);

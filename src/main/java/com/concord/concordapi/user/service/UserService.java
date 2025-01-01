@@ -26,6 +26,11 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User "+username+" not found."));
         return UserMapper.toDto(user);
     }
+
+    public Long findUserId(String username) {
+        return userRepository.getIdByUsername(username);
+    }
+    
     public UserRequestDto changePassword(String password){
         User user = userRepository.findByUsername(authInfoService.getAuthenticatedUsername())
                 .orElseThrow(()-> new EntityNotFoundException("User authenticated not found"));
