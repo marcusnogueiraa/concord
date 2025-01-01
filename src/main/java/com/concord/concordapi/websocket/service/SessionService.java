@@ -34,13 +34,15 @@ public class SessionService {
         return (Long) session.getAttributes().get("userId");
     }
 
-    public void sendMessageToUser(Long userId, ClientMessage<?> clientMessage) throws Exception {
+    public Boolean sendMessageToUser(Long userId, ClientMessage<?> clientMessage) throws Exception {
         WebSocketSession session = sessions.get(userId);
         if (session != null && session.isOpen()) {
             String jsonMessage = objectMapper.writeValueAsString(clientMessage);
             session.sendMessage(new TextMessage(jsonMessage));
+            return true;
         } else {
             System.out.println("Sessão não encontrada ou já fechada para o usuário: " + userId);
+            return false;
         }
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import com.concord.concordapi.messsage.service.UserMessageService;
 import com.concord.concordapi.websocket.entity.ClientMessage;
 import com.concord.concordapi.websocket.entity.EventType;
 import com.concord.concordapi.websocket.entity.content.UserMessageContent;
@@ -14,6 +15,9 @@ public class UserMessageHandler {
 
     @Autowired
     private SessionService sessionService; 
+
+    @Autowired
+    private UserMessageService userMessageService;
     
     protected void handle(UserMessageContent content, WebSocketSession session){
         try {
@@ -33,6 +37,7 @@ public class UserMessageHandler {
 
         sessionService.sendMessageToUser(senderId, clientMessage); 
         sessionService.sendMessageToUser(recipientId, clientMessage);   
+        userMessageService.saveUserMessageContent(clientMessage.getContent());
     }
 
     private void persistMessage(UserMessageContent content){
