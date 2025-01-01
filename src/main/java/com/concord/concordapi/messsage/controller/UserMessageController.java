@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.messsage.dto.request.UserMessageRequestDto;
 import com.concord.concordapi.messsage.dto.response.UserMessageResponseDto;
 import com.concord.concordapi.messsage.service.UserMessageService;
 
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
 
 
 @RestController
@@ -27,6 +27,9 @@ public class UserMessageController {
     
     @Autowired
     private UserMessageService userMessageService;
+
+    @Autowired
+    private AuthService authService;
 
     @GetMapping("/unread")
     public ResponseEntity<List<UserMessageResponseDto>> getUnreadMessages (
@@ -48,7 +51,15 @@ public class UserMessageController {
             @RequestParam Long toUserId,
             @RequestParam Long fromUserId,
             Pageable pageable) {
+        
+        checkIfTheAuthenticatedUserHasAccessToChat(toUserId, fromUserId);
         Page<UserMessageResponseDto> messagesPage = userMessageService.getChatMessages(toUserId, fromUserId, pageable);
         return ResponseEntity.ok(messagesPage);
+    }
+
+    private void checkIfTheAuthenticatedUserHasAccessToChat(Long toUserId, Long fromUserId){
+        Long authenticatedUserId = authService.getAuthenticatedUserId();
+        if (!(authenticatedUserId == toUserId || authenticatedUserId == fromUserId))
+            throw new IllegalArgumentException("The user does not have access to this chat.");
     }
 }
