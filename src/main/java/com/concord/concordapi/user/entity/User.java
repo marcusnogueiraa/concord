@@ -4,10 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
 
-import org.springframework.web.socket.TextMessage;
-
 import com.concord.concordapi.server.entity.Server;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
@@ -59,6 +56,8 @@ public class User {
     @NotBlank
     private String password;
 
+    private String imagePath;
+
     @ManyToMany
     @JoinTable(
         name = "user_server", // Nome da tabela de junção
@@ -84,4 +83,14 @@ public class User {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", username='" + username + "' name='"+name+"', password='"+password+"' email='"+email+"'}";
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username); // Usando apenas atributos simples
+    }
+
 }

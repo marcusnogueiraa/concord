@@ -1,14 +1,8 @@
-# Use uma imagem base do OpenJDK
+# Use a versão oficial do OpenJDK
 FROM openjdk:17-jdk-slim
 
-# Defina o diretório de trabalho no container
-WORKDIR /app
+# Adicione o arquivo JAR gerado ao container
+COPY build/libs/concordapi-0.0.1-SNAPSHOT.jar /app/concordapi-0.0.1-SNAPSHOT.jar
 
-# Copie o JAR da aplicação para o container
-COPY build/libs/*.jar app.jar
-
-# Exponha a porta que o Spring Boot vai rodar
-EXPOSE 8080
-
-# Comando para rodar a aplicação
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Defina o comando para executar a aplicação
+CMD ["java", "-jar", "/app/seu-arquivo.jar"]

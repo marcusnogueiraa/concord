@@ -49,8 +49,10 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api:2.0.9'
 	implementation 'ch.qos.logback:logback-classic:1.4.11'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-	implementation 'jakarta.mail:jakarta.mail-api:2.0.1' // Adiciona a API
-    implementation 'com.sun.mail:jakarta.mail:2.0.1'     // Implementação necessária
+	implementation 'jakarta.mail:jakarta.mail-api:2.0.1' 
+    implementation 'com.sun.mail:jakarta.mail:2.0.1'     
+	testImplementation 'com.h2database:h2'
+	
 	
 }
 

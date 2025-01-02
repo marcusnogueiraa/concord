@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.concord.concordapi.channel.dto.ChannelPutBodyDTO;
 import com.concord.concordapi.user.dto.UserRequestDto;
-import com.concord.concordapi.user.dto.UserRequestPasswordDto;
+import com.concord.concordapi.user.dto.UserPutDto;
 import com.concord.concordapi.user.service.UserService;
 
 import jakarta.validation.Valid;
@@ -29,9 +29,9 @@ public class UserController {
         UserRequestDto user = userService.getByUsername(username);
         return ResponseEntity.ok(user);
     }
-    @PutMapping("/password")
-    public ResponseEntity<UserRequestDto> changePassword(@RequestBody UserRequestPasswordDto userRequestPasswordDto){
-        UserRequestDto user = userService.changePassword(userRequestPasswordDto.password());
+    @PutMapping("/{username}")
+    public ResponseEntity<UserRequestDto> update(@RequestBody UserPutDto userPutDto, @PathVariable("username") String username){
+        UserRequestDto user = userService.update(userPutDto, username);
         return ResponseEntity.ok(user);
     }
 }

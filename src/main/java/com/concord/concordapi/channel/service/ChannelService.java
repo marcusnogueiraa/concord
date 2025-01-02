@@ -7,8 +7,9 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.concord.concordapi.auth.service.AuthService;
+import com.concord.concordapi.channel.dto.ChannelDTO;
 import com.concord.concordapi.channel.dto.ChannelPutBodyDTO;
-import com.concord.concordapi.channel.dto.ChannelRequestBodyDTO;
+import com.concord.concordapi.channel.dto.ChannelCreateBodyDTO;
 import com.concord.concordapi.channel.entity.Channel;
 import com.concord.concordapi.channel.repository.ChannelRepository;
 import com.concord.concordapi.server.entity.Server;
@@ -25,13 +26,14 @@ public class ChannelService {
     @Autowired
     private AuthService authService;
 
-    public Channel get(Long id){
+    public ChannelDTO get(Long id){
         Optional<Channel> searchedChannel = channelRepository.findById(id);
         Channel channel = searchedChannel.orElseThrow(() -> new EntityNotFoundException("Channel "+id+" not found"));
-        return channel;
+        ChannelDTO channelDTO = new ChannelDTO(channel.getId(), channel.getName(), channel.getDescription());
+        return channelDTO;
     }
 
-    public Channel create(ChannelRequestBodyDTO channel){
+    public ChannelDTO create(ChannelCreateBodyDTO channel){
         Channel newChannel = new Channel();
         newChannel.setName(channel.name());
         Optional<Server> searchedServer = serverRepository.findById(channel.serverId());
@@ -42,7 +44,8 @@ public class ChannelService {
         newChannel.setServer(attServer);
         newChannel.setDescription(channel.description());
         Channel createdChannel = channelRepository.save(newChannel);
-        return createdChannel;
+        ChannelDTO channelDTO = new ChannelDTO(createdChannel.getId(), createdChannel.getName(), createdChannel.getDescription());
+        return channelDTO;
     }
     public void delete(Long id){
         Optional<Channel> searchedChannel = channelRepository.findById(id);
@@ -52,7 +55,7 @@ public class ChannelService {
         }
         channelRepository.delete(channel);
     }
-    public Channel update(Long id, ChannelPutBodyDTO channel){
+    public ChannelDTO update(Long id, ChannelPutBodyDTO channel){
         Optional<Channel> searchedChannel = channelRepository.findById(id);
         Channel updateChannel = searchedChannel.orElseThrow(() -> new EntityNotFoundException("Channel "+id+" not found"));
         if (!updateChannel.getServer().getOwner().getUsername().equals(authService.getAuthenticatedUsername())) {
@@ -62,7 +65,8 @@ public class ChannelService {
         updateChannel.setName(channel.name());
         updateChannel.setDescription(channel.description());
         Channel createdChannel = channelRepository.save(updateChannel);
-        return createdChannel;
+        ChannelDTO channelDTO = new ChannelDTO(createdChannel.getId(), createdChannel.getName(), createdChannel.getDescription());
+        return channelDTO;
     }
     
 }
