@@ -52,10 +52,12 @@ public class ServerService {
             throw new AuthorizationDeniedException("Owner doesn't match the logged-in user");
         }
         newServer.setOwner(owner);
-        FilePrefix prefix = new FilePrefix("server_image");
-        fileStorageService.persistImage(prefix ,server.imageTempPath());
 
-        newServer.setImagePath(prefix.getDisplayName()+"/"+server.imageTempPath());
+        if(server.imageTempPath() != null){
+            FilePrefix prefix = new FilePrefix("server_image");
+            fileStorageService.persistImage(prefix ,server.imageTempPath());
+            newServer.setImagePath(prefix.getDisplayName()+"/"+server.imageTempPath());
+        }
         newServer = serverRepository.save(newServer);
         
         User user = newServer.getOwner();
@@ -79,9 +81,12 @@ public class ServerService {
             user.getServers().remove(server);
             userRepository.save(user);
         }
-        if(fileStorageService.fileExists(server.getImagePath())){
-            fileStorageService.deleteFile(server.getImagePath());
+        if(server.getImagePath()!= null){
+            if(fileStorageService.fileExists(server.getImagePath())){
+                fileStorageService.deleteFile(server.getImagePath());
+            }
         }
+        
         serverRepository.delete(server);
     }
 
@@ -93,15 +98,16 @@ public class ServerService {
         if (!updatedServer.getOwner().getUsername().equals(authInfoService.getAuthenticatedUsername())) {
             throw new AuthorizationDeniedException("Owner doesn't match the logged-in user");
         }
-        FilePrefix prefix = new FilePrefix("server_image");
+        if(server.imageTempPath() != null){
+            FilePrefix prefix = new FilePrefix("server_image");
 
-        fileStorageService.persistImage(prefix ,server.imageTempPath());
+            fileStorageService.persistImage(prefix ,server.imageTempPath());
 
-        if(fileStorageService.fileExists(updatedServer.getImagePath())){
-            fileStorageService.deleteFile(updatedServer.getImagePath());
+            if(fileStorageService.fileExists(updatedServer.getImagePath())){
+                fileStorageService.deleteFile(updatedServer.getImagePath());
+            }
+            updatedServer.setImagePath(prefix.getDisplayName()+"/"+server.imageTempPath());
         }
-        updatedServer.setImagePath(prefix.getDisplayName()+"/"+server.imageTempPath());
-
         updatedServer = serverRepository.save(updatedServer);
         updatedServer.setName(server.name());
         
