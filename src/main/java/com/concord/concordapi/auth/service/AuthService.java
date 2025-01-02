@@ -89,11 +89,12 @@ public class AuthService {
         sendVerificationCode(newUser);
     }
 
-    public void confirmUserRegister(String code){
+    public User confirmUserRegister(String code){
         String key = CREATED_USER_CODE_KEY + code;
         User user = (User) redisService.find(key);
         if (user == null) throw new IncorrectCodeException("Incorrect code.");
         else userRepository.save(user);
+        return user;
     }
 
     public void sendForgotPassword(@RequestBody ForgotPasswordRequest request, String clientIp){
