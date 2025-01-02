@@ -89,11 +89,12 @@ public class AuthService {
         sendVerificationCode(newUser);
     }
 
-    public void confirmUserRegister(String code){
+    public User confirmUserRegister(String code){
         String key = CREATED_USER_CODE_KEY + code;
         User user = (User) redisService.find(key);
         if (user == null) throw new IncorrectCodeException("Incorrect code.");
         else userRepository.save(user);
+        return user;
     }
 
     public void sendForgotPassword(@RequestBody ForgotPasswordRequest request, String clientIp){
@@ -114,6 +115,7 @@ public class AuthService {
         }
         
     }
+    
     public void resetPassword(String token, String newPassword, String clientIp) {
         String username = (String) redisService.find(RESET_TOKEN_KEY + token);
         if(username == null){
@@ -124,13 +126,18 @@ public class AuthService {
         userRepository.save(user);
         clearForgotPasswordAttempts(username, clientIp);
         redisService.delete(RESET_TOKEN_KEY+token);
-        }
+    }
 
     public String getAuthenticatedUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated())
             return authentication.getName();
         return null;
+    }
+
+    public Long getAuthenticatedUserId(){
+        String username = getAuthenticatedUsername();
+        return userRepository.getIdByUsername(username);
     }
 
     private void verifyLoginAttempts(String username, String clientIp){
