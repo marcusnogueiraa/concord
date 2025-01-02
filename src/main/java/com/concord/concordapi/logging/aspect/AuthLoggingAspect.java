@@ -32,6 +32,9 @@ public class AuthLoggingAspect {
     @Pointcut("execution(* com.concord.concordapi.auth.controller.AuthController.sendForgotPassword(..))")
     public void sendForgotPasswordMethod() {}
 
+    @Pointcut("execution(* com.concord.concordapi.auth.service.AuthService.resetPassword(..))")
+    public void resetPasswordMethod() {}
+
     @AfterReturning(pointcut = "authenticateUserMethod()")
     public void logUserAuthentication(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
@@ -74,6 +77,17 @@ public class AuthLoggingAspect {
             logger.info("Password reset link sent to '{}', initiated from IP '{}'.", request.email(), clientIp);
         } else {
             logger.warn("Unexpected parameters in sendForgotPassword method.");
+        }
+    }
+
+    @AfterReturning("resetPasswordMethod()")
+    public void logPasswordResetSuccess(JoinPoint joinPoint) {
+        Object[] args = joinPoint.getArgs();
+
+        if (args.length >= 3 && args[0] instanceof String token && args[1] instanceof String newPassword && args[2] instanceof String clientIp) {
+            logger.info("Password reset successfully for user with token '{}', initiated from IP '{}'.", token, clientIp);
+        } else {
+            logger.warn("Unexpected parameters in resetPassword method.");
         }
     }
 }

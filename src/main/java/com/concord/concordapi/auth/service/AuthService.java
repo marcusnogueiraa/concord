@@ -115,6 +115,7 @@ public class AuthService {
         }
         
     }
+    
     public void resetPassword(String token, String newPassword, String clientIp) {
         String username = (String) redisService.find(RESET_TOKEN_KEY + token);
         if(username == null){
@@ -125,7 +126,7 @@ public class AuthService {
         userRepository.save(user);
         clearForgotPasswordAttempts(username, clientIp);
         redisService.delete(RESET_TOKEN_KEY+token);
-        }
+    }
 
     public String getAuthenticatedUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
