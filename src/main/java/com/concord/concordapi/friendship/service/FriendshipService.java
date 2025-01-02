@@ -88,6 +88,6 @@ public class FriendshipService {
     }
 
     private UserRequestDto makeUserRequestDTOByUser(User user){
-        return new UserRequestDto(user.getId(),user.getName(), user.getUsername(), user.getEmail(), user.getCreatedAt());
+        return new UserRequestDto(user.getId(),user.getName(), user.getUsername(), user.getImagePath(), user.getEmail(), user.getCreatedAt());
     }
 }

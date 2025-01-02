@@ -6,6 +6,7 @@ public record UserRequestDto (
     Long id,
     String name,
     String username,
+    String imagePath,
     String email,
     LocalDateTime createdAt
 ) {}

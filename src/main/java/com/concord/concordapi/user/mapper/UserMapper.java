@@ -9,6 +9,7 @@ public class UserMapper {
             entity.getId(),
             entity.getName(),
             entity.getUsername(),
+            entity.getImagePath(),
             entity.getEmail(),
             entity.getCreatedAt()
         );
