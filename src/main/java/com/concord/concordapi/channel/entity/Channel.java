@@ -3,6 +3,7 @@ package com.concord.concordapi.channel.entity;
 import java.time.LocalDateTime;
 
 import com.concord.concordapi.server.entity.Server;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,7 +36,8 @@ public class Channel {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "server_id", nullable = false) 
+    @JoinColumn(name = "server_id", nullable = false)
+    @JsonBackReference 
     private Server server;
 
     @Column(columnDefinition = "TEXT")
@@ -52,4 +54,5 @@ public class Channel {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+    
 }
