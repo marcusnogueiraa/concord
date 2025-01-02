@@ -10,6 +10,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
 import com.concord.concordapi.auth.dto.CreateUserDto;
+import com.concord.concordapi.auth.dto.ForgotPasswordRequest;
 import com.concord.concordapi.auth.dto.LoginUserDto;
 import com.concord.concordapi.user.entity.User;
 
@@ -62,6 +63,17 @@ public class AuthLoggingAspect {
             logger.info("User '{}' verified with code '{}'.", createdUser.getUsername(), code);
         } else {
             logger.warn("Unexpected parameters in confirmUserRegister method.");
+        }
+    }
+
+    @AfterReturning("sendForgotPasswordMethod()")
+    public void logSendForgotPassword(JoinPoint joinPoint) {
+        Object[] args = joinPoint.getArgs();
+
+        if (args.length >= 2 && args[0] instanceof ForgotPasswordRequest request && args[1] instanceof String clientIp) {
+            logger.info("Password reset link sent to '{}', initiated from IP '{}'.", request.email(), clientIp);
+        } else {
+            logger.warn("Unexpected parameters in sendForgotPassword method.");
         }
     }
 }
