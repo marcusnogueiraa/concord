@@ -27,6 +27,7 @@ public class SecurityConfiguration {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
                 .anyRequest().authenticated()
             ).addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

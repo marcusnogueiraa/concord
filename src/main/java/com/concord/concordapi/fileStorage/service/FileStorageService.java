@@ -3,82 +3,51 @@ package com.concord.concordapi.fileStorage.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.*;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.concord.concordapi.fileStorage.dto.FileUploadResponseDto;
+import com.concord.concordapi.fileStorage.entity.FilePrefix;
 import com.concord.concordapi.fileStorage.entity.FileType;
-import com.concord.concordapi.shared.exception.EntityNotFoundException;
+import com.concord.concordapi.shared.exception.EmptyFileException;
+import com.concord.concordapi.shared.exception.FileFormatException;
+import com.concord.concordapi.shared.exception.FileNotFoundException;
+import com.concord.concordapi.shared.exception.FileStorageException;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
-import java.net.MalformedURLException;
 
 @Service
 public class FileStorageService {
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    private Path storagePath;
 
     public FileStorageService(@Value("${file.storage.path}") String storagePath){
         this.storagePath = Paths.get(storagePath);
     }
 
-    public FileUploadResponseDto storePdfTemporarily(MultipartFile file) {
-        validateFile(file);
-
-        String contentType = file.getContentType();
-        if (contentType.equals("application/pdf")) {
-            String id = storeFileTemporarily(file);
-            return new FileUploadResponseDto(id, FileType.PDF);
-        }
-
-        throw new FileFormatException("Invalid format! Only PDFs are allowed");
-    }
-
     public FileUploadResponseDto storeImageTemporarily(MultipartFile image) {
         validateFile(image);
-
         if (isImage(image)) {
             String id = storeFileTemporarily(image);
             return new FileUploadResponseDto(id, FileType.IMAGE);
         }
-
         throw new FileFormatException("Invalid format! Only images are allowed");
     }
 
-    public List<FileUploadResponseDto> storeMultipleImagesTemporarily(List<MultipartFile> files) {
-        List<FileUploadResponseDto> filenames = new ArrayList<>();
-        for (MultipartFile file : files){
-            filenames.add(storeImageTemporarily(file));
-        }
-        return filenames;
-    }
-
     public String persistImage(FilePrefix prefix, String fileName) {
-        if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+        if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")||fileName.endsWith(".png") || fileName.endsWith(".webp")) {
             return persistFile(prefix, fileName);
         }
-        throw new FileFormatException("File must be .jpg");
-    }
-
-    public String persistPdf(FilePrefix prefix, String fileName) {
-        if (fileName.endsWith(".pdf")) {
-            return persistFile(prefix, fileName);
-        }
-        throw new FileFormatException("File must be .pdf");
+        throw new FileFormatException("File must be .jpg, .png, or .webp");
     }
 
     private String persistFile(FilePrefix prefix, String filename) {
@@ -97,19 +66,11 @@ public class FileStorageService {
        }
     }
 
-    public void deleteFiles(List<String> filesPath) {
-        for (String filePath: filesPath) {
-            deleteFile(filePath);
-        }
-    }
-
     public void deleteFile(String filePath) {
         try {
             Path sourcePath = storagePath.resolve(filePath);
             validateFileExistence(sourcePath);
             Files.delete(sourcePath);
-        } catch (APIException e) {
-            throw e;
         } catch (IOException e) {
             throw new FileStorageException("Failed to remove image.", e);
         }
@@ -129,17 +90,11 @@ public class FileStorageService {
         return getServerUrl() + "/api/image?file-id=" + s;
     }
 
-    public String getPdfUrl(String s) {
-        return getServerUrl() + "/api/pdf?file-id=" + s;
-    }
-
     public String updateFile(String oldPath, String newFilename, FilePrefix filePrefix) {
         try {
             String persisted = persistFile(filePrefix, newFilename);
             deleteFile(oldPath);
             return persisted;
-        } catch (APIException e) {
-            throw e;
         } catch (RuntimeException e) {
             throw new FileStorageException("Failed while trying to update the image", e);
         }
@@ -149,7 +104,6 @@ public class FileStorageService {
         try {
             String filename = getUniqueFilename(file.getOriginalFilename());
             Path targetPath = getTargetPath("tempfiles", filename);
-
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
             return filename;
         } catch (IOException e) {
