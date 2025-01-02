@@ -1,4 +1,4 @@
-package com.concord.concordapi.server.e2e.responses;
+package com.concord.concordapi.shared.response;
 
 import java.util.List;
 
@@ -8,5 +8,6 @@ public record ServerExpectedDTO (
     Long id,
     String name,
     UserExpectedDTO owner,
+    String imagePath,
     List<ChannelDTO> channels
 ){}

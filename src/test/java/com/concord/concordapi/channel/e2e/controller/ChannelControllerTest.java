@@ -8,19 +8,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.client.RestTemplate;
 
 import com.concord.concordapi.channel.dto.ChannelDTO;
-import com.concord.concordapi.server.e2e.responses.ServerExpectedDTO;
-import com.concord.concordapi.shared.UtilsMethods;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
+import com.concord.concordapi.shared.response.ServerExpectedDTO;
+import com.concord.concordapi.shared.util.UtilsMethods;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,33 +31,36 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ChannelControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
     @Autowired
     private SecurityConfiguration securityConfiguration;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RestTemplate restTemplate;
+    @LocalServerPort
+    private int port;
 
     private User testUser;
     private String token;
-    private int iterator = 5;
+    private int iterator=5;
 
 
     @BeforeEach
     public void setup() throws Exception {
-        testUser = new User(null, "user"+iterator, "user"+iterator, "user"+iterator+"@gmail.com", securityConfiguration.passwordEncoder().encode("123456"), null, null, null);
+        testUser = new User(null, "user" + iterator, "user" + iterator, "user" + iterator + "@gmail.com", securityConfiguration.passwordEncoder().encode("123456"), null, null, null, null);
         testUser = userRepository.save(testUser);
-        String jsonRequest = "{ \"username\": \""+testUser.getUsername()+"\", \"password\": \"123456\" }";
-        token = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON) // Definindo o tipo de conteúdo como JSON
-                .content(jsonRequest))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        token = UtilsMethods.extractFromResponse(token);
+        String jsonRequest = "{ \"username\": \"" + testUser.getUsername() + "\", \"password\": \"123456\" }";
+        
+        ResponseEntity<String> response = restTemplate.exchange(
+                "http://localhost:"+port+"/api/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(jsonRequest, UtilsMethods.createJsonHeaders()),
+                String.class);
+
+        token = UtilsMethods.extractFromResponse(response.getBody());
         iterator++;
     }
 
@@ -69,34 +74,39 @@ public class ChannelControllerTest {
     @Test
     public void testGetChannelById() throws Exception {
         ChannelDTO actualChannel= createChannel(testUser, "Server 7", "Channel 2");
-        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/channels/"+actualChannel.id())
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn().getResponse().getContentAsString();  
 
-        response = response.replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
+        HttpHeaders headers = UtilsMethods.createJsonHeaders();
+        headers.setBearerAuth(token);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+            "http://localhost:" + port + "/api/channels/" + actualChannel.id(),
+            HttpMethod.GET,
+            new HttpEntity<>(null, headers),
+            String.class
+        );
+        String responseBody = responseEntity.getBody().replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
         ObjectMapper objectMapper = new ObjectMapper();
-        ChannelDTO actualResponse = objectMapper.readValue(response, ChannelDTO.class);
+        ChannelDTO actualResponse = objectMapper.readValue(responseBody, ChannelDTO.class);
         ChannelDTO expectedResponse = new ChannelDTO(actualChannel.id(), "Channel 2", "channel test");
         assertEquals(expectedResponse, actualResponse);
-        
     }
 
     @Test
     public void testUpdateChannel() throws Exception {
-        ChannelDTO actualChannel= createChannel(testUser, "Server 8", "Channel 3");             
+        ChannelDTO actualChannel= createChannel(testUser, "Server 8", "Channel 3");  
+
         String jsonContent = "{\"name\":\"Channel 3 modified\",\"description\":\"channel test\"}";
-        String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/channels/"+actualChannel.id())
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonContent))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andReturn().getResponse().getContentAsString();  
-        response = response.replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
+        HttpHeaders headers = UtilsMethods.createJsonHeaders();
+        headers.setBearerAuth(token);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+            "http://localhost:" + port + "/api/channels/" + actualChannel.id(),
+            HttpMethod.PUT,
+            new HttpEntity<>(jsonContent, headers),
+            String.class
+        );
+
+        String responseBody = responseEntity.getBody().replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
         ObjectMapper objectMapper = new ObjectMapper();
-        ChannelDTO actualResponse = objectMapper.readValue(response, ChannelDTO.class);
+        ChannelDTO actualResponse = objectMapper.readValue(responseBody, ChannelDTO.class);
         ChannelDTO expectedResponse = new ChannelDTO(actualChannel.id(), "Channel 3 modified", "channel test");
         assertEquals(expectedResponse, actualResponse);
     }
@@ -105,23 +115,34 @@ public class ChannelControllerTest {
     public void testDeleteChannel() throws Exception {
         ChannelDTO actualChannel= createChannel(testUser, "Server 8", "Channel 3");   
                 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/channels/"+actualChannel.id())
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+        HttpHeaders headers = UtilsMethods.createJsonHeaders();
+        headers.setBearerAuth(token);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+            "http://localhost:" + port + "/api/channels/" + actualChannel.id(),
+            HttpMethod.DELETE,
+            new HttpEntity<>(headers),
+            String.class
+        );
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
     }
 
     public ChannelDTO createChannel(User testUser, String serverName, String channelName) throws UnsupportedEncodingException, Exception{
-        ServerExpectedDTO actualServer = UtilsMethods.createServer(mockMvc, token, testUser, serverName); 
-        String jsonContent = "{\"name\":\""+channelName+"\",\"serverId\":\""+actualServer.id()+"\",\"description\":\"channel test\"}";
-        String response = mockMvc.perform(MockMvcRequestBuilders.post("/api/channels")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonContent))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andReturn().getResponse().getContentAsString();   
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(response, ChannelDTO.class);
+        ServerExpectedDTO actualServer = UtilsMethods.createServer(restTemplate, port, token, testUser, serverName); 
+
+        String jsonContent = "{\"name\":\""+channelName+"\",\"serverId\":\""+actualServer.id()+"\",\"description\":\"channel test\"}";     
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(jsonContent, headers);
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://localhost:"+port+"/api/channels", requestEntity, String.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            String responseBody = responseEntity.getBody().replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(responseBody, ChannelDTO.class);
+        } else {
+            throw new RuntimeException("Failed to create server: " + responseEntity.getStatusCode());
+        }
     }
 }
