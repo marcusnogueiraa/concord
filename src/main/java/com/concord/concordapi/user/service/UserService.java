@@ -1,6 +1,7 @@
 package com.concord.concordapi.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.concord.concordapi.auth.service.AuthService;
@@ -31,8 +32,11 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User "+username+" not found."));
         return UserMapper.toDto(user);
     }
-    public UserRequestDto update(UserPutDto userPutDto){
-        User user = userRepository.findByUsername(authInfoService.getAuthenticatedUsername())
+    public UserRequestDto update(UserPutDto userPutDto, String username){
+        if (!username.equals(authInfoService.getAuthenticatedUsername())) {
+            throw new AuthorizationDeniedException("Username doesn't match the logged-in user");
+        }
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(()-> new EntityNotFoundException("User authenticated not found"));
         if(userPutDto.password() != null) user.setPassword(securityConfiguration.passwordEncoder().encode(userPutDto.password()));
         if(userPutDto.name() != null) user.setName(userPutDto.name());

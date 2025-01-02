@@ -30,8 +30,8 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
     @PutMapping("/{username}")
-    public ResponseEntity<UserRequestDto> update(@RequestBody UserPutDto userPutDto){
-        UserRequestDto user = userService.update(userPutDto);
+    public ResponseEntity<UserRequestDto> update(@RequestBody UserPutDto userPutDto, @PathVariable("username") String username){
+        UserRequestDto user = userService.update(userPutDto, username);
         return ResponseEntity.ok(user);
     }
 }
