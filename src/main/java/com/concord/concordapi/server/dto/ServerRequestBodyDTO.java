@@ -10,5 +10,7 @@ public record ServerRequestBodyDTO(
     String name,
 
     @NotNull(message = "Owner ID is required")
-    Long ownerId
+    Long ownerId,
+
+    String imageTempPath
 ) {}

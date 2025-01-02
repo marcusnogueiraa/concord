@@ -56,6 +56,8 @@ public class Server {
     @JsonBackReference  // Evita a recursão ao serializar
     private Set<User> users;
     
+    private String imagePath;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

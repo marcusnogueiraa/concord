@@ -21,7 +21,6 @@ import com.concord.concordapi.fileStorage.dto.FileUploadResponseDto;
 import com.concord.concordapi.fileStorage.service.FileStorageService;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 @RestController
 @RequestMapping("/api/files")
@@ -30,7 +29,7 @@ public class FileStorageController {
     @Autowired
     private FileStorageService fileStorageService;
 
-    @PostMapping("upload/image")
+    @PostMapping("images")
     public ResponseEntity<FileUploadResponseDto> uploadImage(
             @RequestParam("image")
             @NotNull MultipartFile image
@@ -39,24 +38,7 @@ public class FileStorageController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("upload/images")
-    public ResponseEntity<List<FileUploadResponseDto>> uploadImages(
-            @RequestParam("images")
-            @Size(min = 1, max = 10) List<MultipartFile> images
-    ) {
-        List<FileUploadResponseDto> response = fileStorageService.storeMultipleImagesTemporarily(images);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("upload/pdf")
-    public ResponseEntity<FileUploadResponseDto> uploadPdf(
-            @RequestParam @NotNull MultipartFile file
-    ) {
-        FileUploadResponseDto response = fileStorageService.storePdfTemporarily(file);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("image")
+    @GetMapping("images")
     public ResponseEntity<UrlResource> downloadImage(@RequestParam("file-id") String filePath) {
         var file = fileStorageService.downloadFile(filePath);
         return ResponseEntity.ok()
@@ -64,11 +46,11 @@ public class FileStorageController {
                 .body(file);
     }
 
-    @GetMapping("pdf")
-    public ResponseEntity<UrlResource> downloadPdf(@RequestParam("file-id") String filePath) {
-        var file = fileStorageService.downloadFile(filePath);
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(file);
+    @DeleteMapping("images")
+    public ResponseEntity<Void> deleteImage(@RequestParam("file-id") String filePath) {
+        fileStorageService.deleteFile(filePath);
+        return ResponseEntity.ok().body(null);
     }
+
+ 
 }
