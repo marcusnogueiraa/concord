@@ -116,20 +116,24 @@ public class FileStorageService {
             throw new EmptyFileException("The uploaded file is empty.");
         }
     }
+    public boolean fileExists(String filePath){
+        Path sourcePath = storagePath.resolve(filePath);
+        return Files.exists(sourcePath);
+    }
 
     private void validateFileExistence(Path filePath){
         if (!Files.exists(filePath)) {
             throw new FileNotFoundException("File " + filePath +  " does not exist.");
         }
     }
-
+ 
     private String getUniqueFilename(String originalFilename){
         String uuid = UUID.randomUUID().toString();
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
         return uuid + fileExtension;
     }
 
-    private Path getTargetPath(String folderName, String filename) throws IOException {
+    public Path getTargetPath(String folderName, String filename) throws IOException {
         Path directoryPath = storagePath.resolve(folderName).normalize();
         if (!Files.exists(directoryPath)){
             Files.createDirectories(directoryPath);

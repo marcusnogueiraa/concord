@@ -7,6 +7,7 @@ public record ServerPutBodyDTO(
     
     @NotNull(message = "Name is required")
     @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters")
-    String name
+    String name,
+    String imageTempPath
 
 ) {}

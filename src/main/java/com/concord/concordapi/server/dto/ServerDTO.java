@@ -8,6 +8,7 @@ import com.concord.concordapi.user.dto.UserRequestDto;
 public record ServerDTO (
     Long id,
     String name,
+    String imagePath,
     UserRequestDto owner,
     List<ChannelDTO> channels
 ){}

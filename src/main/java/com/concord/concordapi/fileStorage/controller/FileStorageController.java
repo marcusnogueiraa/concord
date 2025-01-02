@@ -46,11 +46,5 @@ public class FileStorageController {
                 .body(file);
     }
 
-    @DeleteMapping("images")
-    public ResponseEntity<Void> deleteImage(@RequestParam("file-id") String filePath) {
-        fileStorageService.deleteFile(filePath);
-        return ResponseEntity.ok().body(null);
-    }
-
  
 }
