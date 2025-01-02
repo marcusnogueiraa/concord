@@ -46,8 +46,10 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-	implementation 'jakarta.mail:jakarta.mail-api:2.0.1' // Adiciona a API
-    implementation 'com.sun.mail:jakarta.mail:2.0.1'     // Implementação necessária
+	implementation 'jakarta.mail:jakarta.mail-api:2.0.1' 
+    implementation 'com.sun.mail:jakarta.mail:2.0.1'     
+	testImplementation 'com.h2database:h2'
+	
 	
 }
 
