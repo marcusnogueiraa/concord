@@ -34,7 +34,7 @@ public class FriendshipLoggingAspect {
 
     @AfterReturning("execution(* com.concord.concordapi.friendship.service.FriendshipService.update(..)) && args(id, friendshipDTO)")
     public void logAfterUpdateFriendship(Long id, Object friendshipDTO) {
-        logger.info("Successfully updated friendship with ID: {} with details: {}", id, friendshipDTO);
+        logger.info("Successfully updated friendship with details: {}", id, friendshipDTO);
     }
 
 }
