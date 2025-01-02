@@ -56,6 +56,8 @@ public class User {
     @NotBlank
     private String password;
 
+    private String imagePath;
+
     @ManyToMany
     @JoinTable(
         name = "user_server", // Nome da tabela de junção
@@ -84,7 +86,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{id=" + id + ", username='" + username + "'}";
+        return "User{id=" + id + ", username='" + username + "' name='"+name+"', password='"+password+"' email='"+email+"'}";
     }
     @Override
     public int hashCode() {

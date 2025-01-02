@@ -36,7 +36,7 @@ public class ServerService {
         Optional<Server> searchedServer = serverRepository.findById(id);
         Server server = searchedServer.orElseThrow(() -> new EntityNotFoundException("Server "+id+" not found"));
         User user = server.getOwner();
-        UserRequestDto userRequest = new UserRequestDto(user.getId(), user.getName(), user.getUsername(), user.getEmail(), user.getCreatedAt());
+        UserRequestDto userRequest = new UserRequestDto(user.getId(), user.getName(), user.getUsername(), user.getImagePath(), user.getEmail(), user.getCreatedAt());
         List<ChannelDTO> channels = server.getChannelDTOs();
         ServerDTO serverDTO = new ServerDTO(server.getId(), server.getName(), server.getImagePath(), userRequest, channels);
         return serverDTO;
@@ -59,7 +59,7 @@ public class ServerService {
         newServer = serverRepository.save(newServer);
         
         User user = newServer.getOwner();
-        UserRequestDto userRequest = new UserRequestDto(user.getId(), user.getName(), user.getUsername(), user.getEmail(), user.getCreatedAt());
+        UserRequestDto userRequest = new UserRequestDto(user.getId(), user.getName(), user.getUsername(), user.getImagePath(), user.getEmail(), user.getCreatedAt());
         List<ChannelDTO> channels = newServer.getChannelDTOs();
         ServerDTO serverDTO = new ServerDTO(newServer.getId(), newServer.getName(), newServer.getImagePath(), userRequest, channels);
         return serverDTO;
@@ -108,7 +108,7 @@ public class ServerService {
         Server createdServer = serverRepository.save(updatedServer);
 
         User user = createdServer.getOwner();
-        UserRequestDto userRequest = new UserRequestDto(user.getId(), user.getName(), user.getUsername(), user.getEmail(), user.getCreatedAt());
+        UserRequestDto userRequest = new UserRequestDto(user.getId(), user.getName(), user.getUsername(), user.getImagePath(), user.getEmail(), user.getCreatedAt());
         List<ChannelDTO> channels = createdServer.getChannelDTOs();
         ServerDTO serverDTO = new ServerDTO(createdServer.getId(), createdServer.getName(), createdServer.getImagePath(), userRequest, channels);
         return serverDTO;

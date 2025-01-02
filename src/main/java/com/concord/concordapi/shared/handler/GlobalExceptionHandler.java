@@ -6,6 +6,9 @@ import com.concord.concordapi.auth.exception.MaxRetryException;
 import com.concord.concordapi.auth.exception.UserAlreadyExistsException;
 import com.concord.concordapi.shared.dto.ErrorResponseDTO;
 import com.concord.concordapi.shared.exception.EntityNotFoundException;
+import com.concord.concordapi.shared.exception.FileFormatException;
+import com.concord.concordapi.shared.exception.FileNotFoundException;
+import com.concord.concordapi.shared.exception.FileStorageException;
 import com.concord.concordapi.shared.exception.SMTPServerException;
 
 import org.springframework.security.authentication.BadCredentialsException;
@@ -147,6 +150,30 @@ public class GlobalExceptionHandler {
             HttpStatus.BAD_REQUEST.value(), 
             request.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(errorResponse);
+    }
+    @ExceptionHandler(FileFormatException.class)
+    public ResponseEntity<ErrorResponseDTO> handleSMTPServerError(FileFormatException exc, HttpServletRequest request){
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            exc.getMessage(),
+            HttpStatus.BAD_REQUEST.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleSMTPServerError(FileNotFoundException exc, HttpServletRequest request){
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            exc.getMessage(),
+            HttpStatus.BAD_REQUEST.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ErrorResponseDTO> handleSMTPServerError(FileStorageException exc, HttpServletRequest request){
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            exc.getMessage(),
+            HttpStatus.BAD_REQUEST.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
     @ExceptionHandler(SMTPServerException.class)

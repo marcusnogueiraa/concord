@@ -87,7 +87,7 @@ public class FileStorageService {
     }
 
     public String getImageUrl(String s) {
-        return getServerUrl() + "/api/image?file-id=" + s;
+        return getServerUrl() + "/api/files/images?file-id=" + s;
     }
 
     public String updateFile(String oldPath, String newFilename, FilePrefix filePrefix) {
@@ -142,7 +142,7 @@ public class FileStorageService {
     }
 
     private boolean isImage(MultipartFile file) {
-        List<String> imageMimeTypes = List.of("image/jpeg");
+        List<String> imageMimeTypes = List.of("image/jpeg", "image/png", "image/webp");
 
         String mimeType = file.getContentType();
         return imageMimeTypes.contains(mimeType);
