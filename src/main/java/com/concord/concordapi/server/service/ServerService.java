@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.channel.dto.ChannelDTO;
+import com.concord.concordapi.fileStorage.entity.FilePrefix;
+import com.concord.concordapi.fileStorage.service.FileStorageService;
 import com.concord.concordapi.server.dto.ServerPutBodyDTO;
 import com.concord.concordapi.server.dto.ServerCreateBodyDTO;
 import com.concord.concordapi.server.dto.ServerDTO;
@@ -27,31 +29,39 @@ public class ServerService {
     private UserRepository userRepository;
     @Autowired
     private AuthService authInfoService;
+    @Autowired
+    private FileStorageService fileStorageService;
 
     public ServerDTO getById(Long id){
         Optional<Server> searchedServer = serverRepository.findById(id);
         Server server = searchedServer.orElseThrow(() -> new EntityNotFoundException("Server "+id+" not found"));
         User user = server.getOwner();
-        UserRequestDto userRequest = new UserRequestDto(user.getName(), user.getUsername(), user.getEmail(), user.getCreatedAt());
+        UserRequestDto userRequest = new UserRequestDto(user.getId(), user.getName(), user.getUsername(), user.getEmail(), user.getCreatedAt());
         List<ChannelDTO> channels = server.getChannelDTOs();
-        ServerDTO serverDTO = new ServerDTO(server.getId(), server.getName(), userRequest, channels);
+        ServerDTO serverDTO = new ServerDTO(server.getId(), server.getName(), server.getImagePath(), userRequest, channels);
         return serverDTO;
     }
 
     public ServerDTO create(ServerCreateBodyDTO server){
         Server newServer = new Server();
         newServer.setName(server.name());
+        
         Optional<User> searchedOwner = userRepository.findById(server.ownerId());
         User owner = searchedOwner.orElseThrow(() -> new EntityNotFoundException("Owner "+server.ownerId()+" not found"));
         if (!owner.getUsername().equals(authInfoService.getAuthenticatedUsername())) {
             throw new AuthorizationDeniedException("Owner doesn't match the logged-in user");
         }
         newServer.setOwner(owner);
+        FilePrefix prefix = new FilePrefix("server_image");
+        fileStorageService.persistImage(prefix ,server.imageTempPath());
+
+        newServer.setImagePath(prefix.getDisplayName()+"/"+server.imageTempPath());
         newServer = serverRepository.save(newServer);
+        
         User user = newServer.getOwner();
-        UserRequestDto userRequest = new UserRequestDto(user.getName(), user.getUsername(), user.getEmail(), user.getCreatedAt());
+        UserRequestDto userRequest = new UserRequestDto(user.getId(), user.getName(), user.getUsername(), user.getEmail(), user.getCreatedAt());
         List<ChannelDTO> channels = newServer.getChannelDTOs();
-        ServerDTO serverDTO = new ServerDTO(newServer.getId(), newServer.getName(), userRequest, channels);
+        ServerDTO serverDTO = new ServerDTO(newServer.getId(), newServer.getName(), newServer.getImagePath(), userRequest, channels);
         return serverDTO;
     }
     
@@ -67,7 +77,10 @@ public class ServerService {
   
         for (User user : server.getUsers()) {
             user.getServers().remove(server);
-            userRepository.save(user);  // Salve os usuários para garantir que a relação seja removida
+            userRepository.save(user);
+        }
+        if(fileStorageService.fileExists(server.getImagePath())){
+            fileStorageService.deleteFile(server.getImagePath());
         }
         serverRepository.delete(server);
     }
@@ -80,14 +93,24 @@ public class ServerService {
         if (!updatedServer.getOwner().getUsername().equals(authInfoService.getAuthenticatedUsername())) {
             throw new AuthorizationDeniedException("Owner doesn't match the logged-in user");
         }
-        updatedServer.setName(server.name());
+        FilePrefix prefix = new FilePrefix("server_image");
 
+        fileStorageService.persistImage(prefix ,server.imageTempPath());
+
+        if(fileStorageService.fileExists(updatedServer.getImagePath())){
+            fileStorageService.deleteFile(updatedServer.getImagePath());
+        }
+        updatedServer.setImagePath(prefix.getDisplayName()+"/"+server.imageTempPath());
+
+        updatedServer = serverRepository.save(updatedServer);
+        updatedServer.setName(server.name());
+        
         Server createdServer = serverRepository.save(updatedServer);
 
         User user = createdServer.getOwner();
-        UserRequestDto userRequest = new UserRequestDto(user.getName(), user.getUsername(), user.getEmail(), user.getCreatedAt());
+        UserRequestDto userRequest = new UserRequestDto(user.getId(), user.getName(), user.getUsername(), user.getEmail(), user.getCreatedAt());
         List<ChannelDTO> channels = createdServer.getChannelDTOs();
-        ServerDTO serverDTO = new ServerDTO(createdServer.getId(), createdServer.getName(), userRequest, channels);
+        ServerDTO serverDTO = new ServerDTO(createdServer.getId(), createdServer.getName(), createdServer.getImagePath(), userRequest, channels);
         return serverDTO;
     }
     public void subscribeUser(String username, Long serverId){
