@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.concord.concordapi.friendship.dto.request.FriendshipCreateDTO;
 import com.concord.concordapi.friendship.dto.request.FriendshipPutDTO;
-import com.concord.concordapi.friendship.dto.response.FriendshipDTO;
+import com.concord.concordapi.friendship.dto.response.FriendshipDto;
 import com.concord.concordapi.friendship.service.FriendshipService;
 
 import jakarta.validation.Valid;
@@ -27,14 +27,14 @@ public class FriendshipController {
     private FriendshipService friendshipService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<FriendshipDTO> get(@PathVariable Long id){
-        FriendshipDTO friendship = friendshipService.get(id);
+    public ResponseEntity<FriendshipDto> get(@PathVariable Long id){
+        FriendshipDto friendship = friendshipService.get(id);
         return ResponseEntity.status(HttpStatus.OK).body(friendship);
     }
 
     @PostMapping
-    public ResponseEntity<FriendshipDTO> create(@RequestBody @Valid FriendshipCreateDTO friendshipDTO) {
-        FriendshipDTO friendship = friendshipService.create(friendshipDTO);
+    public ResponseEntity<FriendshipDto> create(@RequestBody @Valid FriendshipCreateDTO friendshipDTO) {
+        FriendshipDto friendship = friendshipService.create(friendshipDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(friendship); 
     }
 
@@ -45,8 +45,8 @@ public class FriendshipController {
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<FriendshipDTO> update(@RequestBody @Valid FriendshipPutDTO friendshipPutDTO, @PathVariable Long id) {
-        FriendshipDTO friendship = friendshipService.update(id, friendshipPutDTO);
+    public ResponseEntity<FriendshipDto> update(@RequestBody @Valid FriendshipPutDTO friendshipPutDTO, @PathVariable Long id) {
+        FriendshipDto friendship = friendshipService.update(id, friendshipPutDTO);
         return ResponseEntity.status(HttpStatus.OK).body(friendship); 
     }
 }
