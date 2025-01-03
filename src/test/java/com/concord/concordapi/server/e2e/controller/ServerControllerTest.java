@@ -18,9 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 
+import com.concord.concordapi.channel.e2e.response.UserExpectedDTO;
+import com.concord.concordapi.server.e2e.response.ServerExpectedDTO;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
-import com.concord.concordapi.shared.response.ServerExpectedDTO;
-import com.concord.concordapi.shared.response.UserExpectedDTO;
 import com.concord.concordapi.shared.util.UtilsMethods;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
@@ -48,7 +48,7 @@ public class ServerControllerTest {
     public void setup() throws Exception {
         testUser = new User(null, "user" + iterator, "user" + iterator, "user" + iterator + "@gmail.com", securityConfiguration.passwordEncoder().encode("123456"), null, null, null, null);
         testUser = userRepository.save(testUser);
-        String jsonRequest = "{ \"username\": \"" + testUser.getUsername() + "\", \"password\": \"123456\" }";
+        String jsonRequest = "{ \"email\": \"" + testUser.getEmail() + "\", \"password\": \"123456\" }";
         
         ResponseEntity<String> response = restTemplate.exchange(
                 "http://localhost:"+port+"/api/auth/login",

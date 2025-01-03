@@ -38,7 +38,7 @@ public class AuthLoggingAspect {
     public void logUserAuthentication(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         if (args.length > 1 && args[0] instanceof LoginUserDto loginUserDto && args[1] instanceof String clientIp) {
-            logger.info("User '{}' authenticated successfully from IP '{}'.", loginUserDto.username(), clientIp);
+            logger.info("User '{}' authenticated successfully from IP '{}'.", loginUserDto.email(), clientIp);
         } else {
             logger.warn("Unexpected parameters in authenticateUser method.");
         }

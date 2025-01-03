@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.concord.concordapi.server.entity.Server;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;

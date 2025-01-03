@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.concord.concordapi.channel.dto.ChannelDTO;
-import com.concord.concordapi.channel.dto.ChannelPutBodyDTO;
-import com.concord.concordapi.channel.dto.ChannelCreateBodyDTO;
+import com.concord.concordapi.channel.dto.request.ChannelCreateBodyDto;
+import com.concord.concordapi.channel.dto.request.ChannelPutBodyDto;
+import com.concord.concordapi.channel.dto.response.ChannelDto;
 import com.concord.concordapi.channel.service.ChannelService;
 
 import jakarta.validation.Valid;
@@ -26,14 +26,14 @@ public class ChannelController {
     private ChannelService channelService;
 
     @GetMapping("/channels/{id}")
-    public ResponseEntity<ChannelDTO> get(@PathVariable Long id){
-        ChannelDTO channel = channelService.get(id);
+    public ResponseEntity<ChannelDto> get(@PathVariable Long id){
+        ChannelDto channel = channelService.get(id);
         return ResponseEntity.status(HttpStatus.OK).body(channel);
     }
 
     @PostMapping("/channels")
-    public ResponseEntity<ChannelDTO> create(@RequestBody @Valid ChannelCreateBodyDTO channel) {
-        ChannelDTO createdChannel = channelService.create(channel);
+    public ResponseEntity<ChannelDto> create(@RequestBody @Valid ChannelCreateBodyDto channel) {
+        ChannelDto createdChannel = channelService.create(channel);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel); 
     }
 
@@ -44,8 +44,8 @@ public class ChannelController {
     }
 
     @PutMapping("/channels/{id}")
-    public ResponseEntity<ChannelDTO> update(@RequestBody @Valid ChannelPutBodyDTO channel, @PathVariable Long id) {
-        ChannelDTO updatedChannel = channelService.update(id, channel);
+    public ResponseEntity<ChannelDto> update(@RequestBody @Valid ChannelPutBodyDto channel, @PathVariable Long id) {
+        ChannelDto updatedChannel = channelService.update(id, channel);
         return ResponseEntity.status(HttpStatus.OK).body(updatedChannel); 
     }
 }

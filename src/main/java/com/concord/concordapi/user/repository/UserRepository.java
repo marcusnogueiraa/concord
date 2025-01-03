@@ -11,9 +11,9 @@ import com.concord.concordapi.user.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {   
-    Optional<User> findByUsername(String username);
     Boolean existsByUsername(String username);
     Optional<User> findByEmail(String email);
+    Optional<User> findByUsername(String username);
     Boolean existsByEmail(String email);
 
     @Query("SELECT u.id FROM User u WHERE u.username = :username")

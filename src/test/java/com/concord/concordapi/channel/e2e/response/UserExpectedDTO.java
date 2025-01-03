@@ -1,4 +1,4 @@
-package com.concord.concordapi.shared.response;
+package com.concord.concordapi.channel.e2e.response;
 
 
 public record UserExpectedDTO (

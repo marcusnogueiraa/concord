@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 
 import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.shared.exception.EntityNotFoundException;
-import com.concord.concordapi.user.dto.UserPreferenceRequestDto;
+import com.concord.concordapi.user.dto.request.UserPreferenceRequestDto;
+import com.concord.concordapi.user.dto.response.UserPreferenceDto;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.entity.UserPreference;
+import com.concord.concordapi.user.mapper.UserPreferenceMapper;
 import com.concord.concordapi.user.repository.UserPreferenceRepository;
 import com.concord.concordapi.user.repository.UserRepository;
 
@@ -23,65 +25,61 @@ public class UserPreferenceService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private AuthService authInfoService;
+    private AuthService authService;
 
-    public UserPreference get(UserPreferenceRequestDto userPreferenceRequestDto){
-        if (!userPreferenceRequestDto.username().equals(authInfoService.getAuthenticatedUsername())) {
-            throw new AuthorizationDeniedException("User doesn't match the logged-in user");
-        }
+    public UserPreferenceDto get(UserPreferenceRequestDto userPreferenceRequestDto){
+        User user = userRepository.findById(userPreferenceRequestDto.userId()).orElseThrow(()->new EntityNotFoundException("User id "+userPreferenceRequestDto.userId()+"not found"));
+        authService.isUserTheAuthenticated(user);
         UserPreference userPreference = userPreferenceRepository.findByUserUsernameAndPreferenceKey(
-            userPreferenceRequestDto.username(), 
+            user.getUsername(), 
             userPreferenceRequestDto.preferenceKey()
             ).orElseThrow(()-> new EntityNotFoundException("Preference not found"));
-        return userPreference;
+        return UserPreferenceMapper.toDto(userPreference);
     }
-    public List<UserPreference> getByUser(String username){
-        if (!username.equals(authInfoService.getAuthenticatedUsername())) {
-            throw new AuthorizationDeniedException("User doesn't match the logged-in user");
-        }
-        User user = userRepository.findByUsername(username).orElseThrow(()->
-            new EntityNotFoundException("User not found")
-        );
+    public List<UserPreferenceDto> getByUser(Long id){
+        User user = userRepository.findById(id).orElseThrow(()->new EntityNotFoundException("User id "+id+"not found"));
+        authService.isUserTheAuthenticated(user);
         List<UserPreference> userPreferences = userPreferenceRepository.findByUser(user);
-        return userPreferences;
+        return UserPreferenceMapper.toDtos(userPreferences);
         
     }
-    public UserPreference create(UserPreferenceRequestDto userPreferenceRequestDto){
-        if (!userPreferenceRequestDto.username().equals(authInfoService.getAuthenticatedUsername())) {
-            throw new AuthorizationDeniedException("User doesn't match the logged-in user");
-        }
-        String username = userPreferenceRequestDto.username();
-        User user = userRepository.findByUsername(username).orElseThrow(()->
-            new EntityNotFoundException("User not found")
+    public UserPreferenceDto create(UserPreferenceRequestDto userPreferenceRequestDto){
+        User user = userRepository.findById(userPreferenceRequestDto.userId()).orElseThrow(()->
+            new EntityNotFoundException("User id "+userPreferenceRequestDto.userId()+" not found")
+        );  
+        authService.isUserTheAuthenticated(user);
+        UserPreference userPreference = new UserPreference(
+            null, 
+            user, 
+            userPreferenceRequestDto.preferenceKey(), 
+            userPreferenceRequestDto.preferenceValue()
         );
-        UserPreference userPreference = new UserPreference();
-        userPreference.setUser(user);
-        userPreference.setPreferenceKey(userPreferenceRequestDto.preferenceKey());
-        userPreference.setPreferenceValue(userPreferenceRequestDto.preferenceValue());
         userPreferenceRepository.save(userPreference);
-        return userPreference;
+        return UserPreferenceMapper.toDto(userPreference);
     }
     public void delete(UserPreferenceRequestDto userPreferenceRequestDto){
-        if (!userPreferenceRequestDto.username().equals(authInfoService.getAuthenticatedUsername())) {
-            throw new AuthorizationDeniedException("User doesn't match the logged-in user");
-        }
+        User user = userRepository.findById(userPreferenceRequestDto.userId()).orElseThrow(()->
+            new EntityNotFoundException("User id "+userPreferenceRequestDto.userId()+" not found")
+        );  
+        authService.isUserTheAuthenticated(user);
         UserPreference userPreference = userPreferenceRepository.findByUserUsernameAndPreferenceKey(
-            userPreferenceRequestDto.username(), 
+            user.getUsername(), 
             userPreferenceRequestDto.preferenceKey()
-            ).orElseThrow(()-> new EntityNotFoundException("Preference not found"));
+        ).orElseThrow(()-> new EntityNotFoundException("Preference not found"));
         userPreferenceRepository.delete(userPreference);
     }
-    public UserPreference updateValue(UserPreferenceRequestDto userPreferenceRequestDto){
-        if (!userPreferenceRequestDto.username().equals(authInfoService.getAuthenticatedUsername())) {
-            throw new AuthorizationDeniedException("User doesn't match the logged-in user");
-        }
+    public UserPreferenceDto updateValue(UserPreferenceRequestDto userPreferenceRequestDto){
+        User user = userRepository.findById(userPreferenceRequestDto.userId()).orElseThrow(()->
+            new EntityNotFoundException("User id "+userPreferenceRequestDto.userId()+" not found")
+        );  
+        authService.isUserTheAuthenticated(user);
         UserPreference userPreference = userPreferenceRepository.findByUserUsernameAndPreferenceKey(
-            userPreferenceRequestDto.username(), 
+            user.getUsername(), 
             userPreferenceRequestDto.preferenceKey()
             ).orElseThrow(()-> new EntityNotFoundException("Preference not found"));
         userPreference.setPreferenceValue(userPreferenceRequestDto.preferenceValue());
         userPreferenceRepository.save(userPreference);
-        return userPreference;
+        return UserPreferenceMapper.toDto(userPreference);
     }
     
 }

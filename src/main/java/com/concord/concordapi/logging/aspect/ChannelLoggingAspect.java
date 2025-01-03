@@ -17,9 +17,9 @@ public class ChannelLoggingAspect {
         logger.info("Successfully fetched channel with ID: {}", id);
     }
 
-    @AfterReturning("execution(* com.concord.concordapi.channel.service.ChannelService.create(..)) && args(channelRequestBodyDTO)")
-    public void logAfterCreateChannel(Object channelRequestBodyDTO) {
-        logger.info("Successfully created a new channel with details: {}", channelRequestBodyDTO);
+    @AfterReturning("execution(* com.concord.concordapi.channel.service.ChannelService.create(..)) && args(channel)")
+    public void logAfterCreateChannel(Object channel) {
+        logger.info("Successfully created a new channel with details: {}", channel);
     }
 
     @AfterReturning("execution(* com.concord.concordapi.channel.service.ChannelService.delete(..)) && args(id)")
@@ -27,8 +27,8 @@ public class ChannelLoggingAspect {
         logger.info("Successfully deleted channel with ID: {}", id);
     }
 
-    @AfterReturning("execution(* com.concord.concordapi.channel.service.ChannelService.update(..)) && args(id, channelPutBodyDTO)")
-    public void logAfterUpdateChannel(Long id, Object channelPutBodyDTO) {
-        logger.info("Successfully updated channel with ID: {} and details: {}", id, channelPutBodyDTO);
+    @AfterReturning("execution(* com.concord.concordapi.channel.service.ChannelService.update(..)) && args(id, channel)")
+    public void logAfterUpdateChannel(Long id, Object channel) {
+        logger.info("Successfully updated channel with ID: {} and details: {}", id, channel);
     }
 }

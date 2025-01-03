@@ -17,11 +17,6 @@ public class FriendshipLoggingAspect {
         logger.info("Successfully fetched friendship with ID: {}", id);
     }
 
-    @AfterReturning("execution(* com.concord.concordapi.friendship.service.FriendshipService.getAllFriendships(..)) && args(userId)")
-    public void logAfterGetAllFriendships(Long userId) {
-        logger.info("Successfully fetched all friendships for user ID: {}", userId);
-    }
-
     @AfterReturning("execution(* com.concord.concordapi.friendship.service.FriendshipService.create(..)) && args(friendshipDTO)")
     public void logAfterCreateFriendship(Object friendshipDTO) {
         logger.info("Successfully created a new friendship with details: {}", friendshipDTO);

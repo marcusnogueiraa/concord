@@ -17,9 +17,9 @@ public class ServerLoggingAspect {
         logger.info("Successfully fetched server with ID: {}", id);
     }
 
-    @AfterReturning("execution(* com.concord.concordapi.server.service.ServerService.create(..)) && args(serverRequestBodyDTO)")
-    public void logAfterCreateServer(Object serverRequestBodyDTO) {
-        logger.info("Successfully created a new server with details: {}", serverRequestBodyDTO);
+    @AfterReturning("execution(* com.concord.concordapi.server.service.ServerService.create(..)) && args(server)")
+    public void logAfterCreateServer(Object server) {
+        logger.info("Successfully created a new server with details: {}", server);
     }
 
     @AfterReturning("execution(* com.concord.concordapi.server.service.ServerService.deleteById(..)) && args(id)")
@@ -27,13 +27,13 @@ public class ServerLoggingAspect {
         logger.info("Successfully deleted server with ID: {}", id);
     }
 
-    @AfterReturning("execution(* com.concord.concordapi.server.service.ServerService.updateById(..)) && args(id, serverPutBodyDTO)")
-    public void logAfterUpdateServerById(Long id, Object serverPutBodyDTO) {
-        logger.info("Successfully updated server with ID: {} and details: {}", id, serverPutBodyDTO);
+    @AfterReturning("execution(* com.concord.concordapi.server.service.ServerService.updateById(..)) && args(id, server)")
+    public void logAfterUpdateServerById(Long id, Object server) {
+        logger.info("Successfully updated server with ID: {} and details: {}", id, server);
     }
 
-    @AfterReturning("execution(* com.concord.concordapi.server.service.ServerService.subscribeUser(..)) && args(username, serverId)")
-    public void logAfterSubscribeUser(String username, Long serverId) {
-        logger.info("User '{}' successfully subscribed to server with ID: {}", username, serverId);
+    @AfterReturning("execution(* com.concord.concordapi.server.service.ServerService.subscribeUser(..)) && args(userId, serverId)")
+    public void logAfterSubscribeUser(Long userId, Long serverId) {
+        logger.info("User '{}' successfully subscribed to server with ID: {}", userId, serverId);
     }
 }

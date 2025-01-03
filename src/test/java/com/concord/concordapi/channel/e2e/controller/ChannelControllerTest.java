@@ -19,9 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 
-import com.concord.concordapi.channel.dto.ChannelDTO;
+import com.concord.concordapi.channel.dto.response.ChannelDto;
+import com.concord.concordapi.server.e2e.response.ServerExpectedDTO;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
-import com.concord.concordapi.shared.response.ServerExpectedDTO;
 import com.concord.concordapi.shared.util.UtilsMethods;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
@@ -52,7 +52,7 @@ public class ChannelControllerTest {
     public void setup() throws Exception {
         testUser = new User(null, "user" + iterator, "user" + iterator, "user" + iterator + "@gmail.com", securityConfiguration.passwordEncoder().encode("123456"), null, null, null, null);
         testUser = userRepository.save(testUser);
-        String jsonRequest = "{ \"username\": \"" + testUser.getUsername() + "\", \"password\": \"123456\" }";
+        String jsonRequest = "{ \"email\": \"" + testUser.getEmail() + "\", \"password\": \"123456\" }";
         
         ResponseEntity<String> response = restTemplate.exchange(
                 "http://localhost:"+port+"/api/auth/login",
@@ -66,14 +66,14 @@ public class ChannelControllerTest {
 
     @Test
     public void testCreateChannel() throws Exception {
-        ChannelDTO actualResponse = createChannel(testUser, "Server 6", "Channel 1");
-        ChannelDTO expectedResponse = new ChannelDTO(actualResponse.id(), "Channel 1", "channel test");
+        ChannelDto actualResponse = createChannel(testUser, "Server 6", "Channel 1");
+        ChannelDto expectedResponse = new ChannelDto(actualResponse.id(), "Channel 1", "channel test");
         assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     public void testGetChannelById() throws Exception {
-        ChannelDTO actualChannel= createChannel(testUser, "Server 7", "Channel 2");
+        ChannelDto actualChannel= createChannel(testUser, "Server 7", "Channel 2");
 
         HttpHeaders headers = UtilsMethods.createJsonHeaders();
         headers.setBearerAuth(token);
@@ -85,14 +85,14 @@ public class ChannelControllerTest {
         );
         String responseBody = responseEntity.getBody().replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
         ObjectMapper objectMapper = new ObjectMapper();
-        ChannelDTO actualResponse = objectMapper.readValue(responseBody, ChannelDTO.class);
-        ChannelDTO expectedResponse = new ChannelDTO(actualChannel.id(), "Channel 2", "channel test");
+        ChannelDto actualResponse = objectMapper.readValue(responseBody, ChannelDto.class);
+        ChannelDto expectedResponse = new ChannelDto(actualChannel.id(), "Channel 2", "channel test");
         assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     public void testUpdateChannel() throws Exception {
-        ChannelDTO actualChannel= createChannel(testUser, "Server 8", "Channel 3");  
+        ChannelDto actualChannel= createChannel(testUser, "Server 8", "Channel 3");  
 
         String jsonContent = "{\"name\":\"Channel 3 modified\",\"description\":\"channel test\"}";
         HttpHeaders headers = UtilsMethods.createJsonHeaders();
@@ -106,14 +106,14 @@ public class ChannelControllerTest {
 
         String responseBody = responseEntity.getBody().replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
         ObjectMapper objectMapper = new ObjectMapper();
-        ChannelDTO actualResponse = objectMapper.readValue(responseBody, ChannelDTO.class);
-        ChannelDTO expectedResponse = new ChannelDTO(actualChannel.id(), "Channel 3 modified", "channel test");
+        ChannelDto actualResponse = objectMapper.readValue(responseBody, ChannelDto.class);
+        ChannelDto expectedResponse = new ChannelDto(actualChannel.id(), "Channel 3 modified", "channel test");
         assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     public void testDeleteChannel() throws Exception {
-        ChannelDTO actualChannel= createChannel(testUser, "Server 8", "Channel 3");   
+        ChannelDto actualChannel= createChannel(testUser, "Server 8", "Channel 3");   
                 
         HttpHeaders headers = UtilsMethods.createJsonHeaders();
         headers.setBearerAuth(token);
@@ -126,7 +126,7 @@ public class ChannelControllerTest {
         assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
     }
 
-    public ChannelDTO createChannel(User testUser, String serverName, String channelName) throws UnsupportedEncodingException, Exception{
+    public ChannelDto createChannel(User testUser, String serverName, String channelName) throws UnsupportedEncodingException, Exception{
         ServerExpectedDTO actualServer = UtilsMethods.createServer(restTemplate, port, token, testUser, serverName); 
 
         String jsonContent = "{\"name\":\""+channelName+"\",\"serverId\":\""+actualServer.id()+"\",\"description\":\"channel test\"}";     
@@ -140,7 +140,7 @@ public class ChannelControllerTest {
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             String responseBody = responseEntity.getBody().replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
             ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(responseBody, ChannelDTO.class);
+            return objectMapper.readValue(responseBody, ChannelDto.class);
         } else {
             throw new RuntimeException("Failed to create server: " + responseEntity.getStatusCode());
         }

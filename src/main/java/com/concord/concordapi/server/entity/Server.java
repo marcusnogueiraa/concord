@@ -1,12 +1,9 @@
 package com.concord.concordapi.server.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import com.concord.concordapi.channel.dto.ChannelDTO;
 import com.concord.concordapi.channel.entity.Channel;
 import com.concord.concordapi.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -44,7 +41,7 @@ public class Server {
     @NotBlank
     private String name;
 
-    @ManyToOne // Define a relação Many-to-One
+    @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
@@ -70,18 +67,6 @@ public class Server {
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public List<ChannelDTO> getChannelDTOs() {
-        List<ChannelDTO> channelsDTO = new ArrayList<>();
-        if(channels!=null){
-            channelsDTO = this.channels.stream()
-                .map(channel -> new ChannelDTO(channel.getId(), channel.getName(), channel.getDescription())) // Mapeia para o record
-                .collect(Collectors.toList());
-            return channelsDTO;
-        }
-        
-        return channelsDTO;
     }
   
 }

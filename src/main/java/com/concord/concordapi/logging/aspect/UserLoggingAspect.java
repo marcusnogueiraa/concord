@@ -12,18 +12,18 @@ public class UserLoggingAspect {
 
     private static final Logger logger = LoggerFactory.getLogger(UserLoggingAspect.class);
 
-    @AfterReturning("execution(* com.concord.concordapi.user.service.UserService.getByUsername(..)) && args(username)")
-    public void logAfterGetByUsername(String username) {
-        logger.info("Successfully fetched user with username: {}", username);
+    @AfterReturning("execution(* com.concord.concordapi.user.service.UserService.getById(..)) && args(id)")
+    public void logAfterGetById(Long id) {
+        logger.info("Successfully fetched user with id: {}", id);
     }
 
-    @AfterReturning("execution(* com.concord.concordapi.user.service.UserService.findUserId(..)) && args(username)")
-    public void logAfterFindUserId(String username) {
-        logger.info("Successfully fetched user ID for username: {}", username);
+    @AfterReturning("execution(* com.concord.concordapi.user.service.UserService.findUserIdByEmail(..)) && args(email)")
+    public void logAfterFindUserId(String email) {
+        logger.info("Successfully fetched user ID for username: {}", email);
     }
 
-    @AfterReturning("execution(* com.concord.concordapi.user.service.UserService.changePassword(..))")
-    public void logAfterChangePassword() {
-        logger.info("Password successfully changed for the authenticated user.");
+    @AfterReturning("execution(* com.concord.concordapi.user.service.UserService.update(..)) && args(userPutDto, id)")
+    public void logAfterGetAllFriendships(Object userPutDto, Long userId) {
+        logger.info("Successfully fetched all friendships for user: {} ID: {}", userPutDto, userId);
     }
 }
