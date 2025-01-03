@@ -10,6 +10,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import com.concord.concordapi.auth.service.JwtTokenService;
+import com.concord.concordapi.user.service.UserService;
 
 
 @Component
@@ -17,6 +18,9 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
 
     @Autowired
     private JwtTokenService jwtTokenService;
+
+    @Autowired
+    private UserService userService;
     
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
@@ -27,9 +31,8 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
             String jwtToken = token.substring(7);  // Remove "Bearer " do token
 
             String username = jwtTokenService.getSubjectFromToken(jwtToken);
-          
-            attributes.put("username", username);
-      
+            Long userId = userService.findUserId(username);
+            attributes.put("userId", userId);
         }
 
         return true;  // Permite o handshake continuar

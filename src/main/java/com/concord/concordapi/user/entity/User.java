@@ -64,7 +64,7 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"), // Coluna que referencia o usuário
         inverseJoinColumns = @JoinColumn(name = "server_id") // Coluna que referencia o servidor
     )
-    @JsonManagedReference
+    @JsonIgnore
     private Set<Server> servers;
 
     @Column(name = "created_at", nullable = false, updatable = false)

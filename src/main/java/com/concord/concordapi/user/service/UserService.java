@@ -32,6 +32,11 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User "+username+" not found."));
         return UserMapper.toDto(user);
     }
+
+    public Long findUserId(String username) {
+        return userRepository.getIdByUsername(username);
+    }
+    
     public UserRequestDto update(UserPutDto userPutDto, String username){
         if (!username.equals(authInfoService.getAuthenticatedUsername())) {
             throw new AuthorizationDeniedException("Username doesn't match the logged-in user");

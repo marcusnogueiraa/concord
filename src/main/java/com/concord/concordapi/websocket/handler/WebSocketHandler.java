@@ -1,84 +1,62 @@
 package com.concord.concordapi.websocket.handler;
 
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import com.concord.concordapi.server.entity.Server;
-import com.concord.concordapi.shared.exception.EntityNotFoundException;
-import com.concord.concordapi.user.entity.User;
-import com.concord.concordapi.user.repository.UserRepository;
+
 import com.concord.concordapi.websocket.entity.ClientMessage;
-import com.concord.concordapi.websocket.service.SubscriptionService;
+import com.concord.concordapi.websocket.entity.content.ChannelMessageContent;
+import com.concord.concordapi.websocket.entity.content.UserMessageContent;
 import com.concord.concordapi.websocket.service.SessionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.transaction.Transactional;
-
 
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Autowired
-    private SubscriptionService subscriptionService;
-
     @Autowired
     private SessionService sessionService;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserMessageHandler userMessageHandler;
+
+    @Autowired
+    private ChannelMessageHandler channelMessageHandler;
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        Long userId = sessionService.getUserIdBySession(session);
+        System.out.println("User connected :" + userId);
+        sessionService.saveSession(session);
+    }
     
-    private static final String REDIS_SESSIONS_KEY = "sessions";
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        ClientMessage<?> clientMessage = objectMapper.readValue(message.getPayload(), ClientMessage.class);
+        delegateHandler(clientMessage, session);
+    }
     
-        @Override
-        @Transactional
-        public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-            String username = (String) session.getAttributes().get("username");
-            if (username != null) {
-                sessionService.addSession(username, session);
-                subscriptionService.getRedisTemplate().opsForHash().put(REDIS_SESSIONS_KEY, username, username);
-                User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User not found"));
-                Set<Server> serversSubscribes = user.getServers();
-                for (Server server : serversSubscribes) {
-                    subscriptionService.subscribeUserToServer(server, username);
-                }
-            }else {
-                session.close(CloseStatus.BAD_DATA);
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        Long userId = sessionService.getUserIdBySession(session);
+        System.out.println("User disconnected :" + userId);
+        sessionService.removeSession(session);
+    }
+
+    private void delegateHandler(ClientMessage<?> clientMessage, WebSocketSession session) throws Exception {
+        switch (clientMessage.getEventType()) {
+            case USER_MESSAGE -> {
+                UserMessageContent content = objectMapper.convertValue(clientMessage.getContent(), UserMessageContent.class);
+                userMessageHandler.handle(content, session);
             }
+            case CHANNEL_MESSAGE -> {
+                ChannelMessageContent content = objectMapper.convertValue(clientMessage.getContent(), ChannelMessageContent.class);
+                channelMessageHandler.handle(content, session);
+            }
+            default -> throw new IllegalArgumentException("Unknown EventType: " + clientMessage.getEventType());
         }
-    
-        @Override
-        protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-            String username = (String) session.getAttributes().get("username");
-            if (username != null) {
-                String payload = message.getPayload();
-                ClientMessage clientMessage = objectMapper.readValue(payload, ClientMessage.class);
-                clientMessage.setUsername(username);
-                subscriptionService.sendToChannel(clientMessage.getTo(), clientMessage);
-                
-            } else {
-                session.sendMessage(new TextMessage("Você não está autenticado."));
-            }
-    
-        }
-    
-        @Override
-        public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-            String username = (String) session.getAttributes().get("username");
-            if (username != null) {
-                User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User not found"));
-                Set<Server> serversSubscribes = user.getServers();
-                for (Server server : serversSubscribes) {
-                    subscriptionService.unsubscribeUserToServer(server, username);
-                }
-                sessionService.removeSession(username);
-                subscriptionService.getRedisTemplate().opsForHash().delete(REDIS_SESSIONS_KEY, username);
-            }else {
-                session.close(CloseStatus.BAD_DATA);
-            }
-        } 
+    }
 }
