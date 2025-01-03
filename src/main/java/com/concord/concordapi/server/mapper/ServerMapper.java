@@ -23,4 +23,13 @@ public class ServerMapper {
             channelDtos
         );
     }
+    public static List<ServerDto> toDtos(List<Server> entities){
+        List<ServerDto> serverDtos = new ArrayList<>();
+        if(entities!=null){
+            for(Server servers : entities){
+                serverDtos.add(toDto(servers));
+            }
+        }
+        return serverDtos;
+    }
 }

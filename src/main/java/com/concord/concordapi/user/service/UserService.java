@@ -1,5 +1,7 @@
 package com.concord.concordapi.user.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
@@ -7,6 +9,9 @@ import org.springframework.stereotype.Service;
 import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.fileStorage.entity.FilePrefix;
 import com.concord.concordapi.fileStorage.service.FileStorageService;
+import com.concord.concordapi.server.dto.response.ServerDto;
+import com.concord.concordapi.server.entity.Server;
+import com.concord.concordapi.server.mapper.ServerMapper;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
 import com.concord.concordapi.shared.exception.EntityNotFoundException;
 import com.concord.concordapi.user.dto.request.UserPutDto;
@@ -41,6 +46,11 @@ public class UserService {
         return userRepository.findByEmail(email)
         .orElseThrow(()->new EntityNotFoundException("User email "+email+" not found"))
         .getId();
+    }
+    public List<ServerDto> getServers(String username){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User "+username+" not found."));
+        return ServerMapper.toDtos(user.getServers());
     }
 
     public UserDto update(UserPutDto userPutDto, String username){

@@ -1,6 +1,7 @@
 package com.concord.concordapi.user.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -66,7 +67,7 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "server_id") // Coluna que referencia o servidor
     )
     @JsonIgnore
-    private Set<Server> servers;
+    private List<Server> servers;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
