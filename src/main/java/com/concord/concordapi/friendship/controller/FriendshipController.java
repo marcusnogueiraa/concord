@@ -28,24 +28,25 @@ public class FriendshipController {
     @Autowired
     private FriendshipService friendshipService;
 
-    @GetMapping("/friendships/")
+    @GetMapping("/friendships/{id}")
     public ResponseEntity<FriendshipDTO> get(@PathVariable Long id){
         FriendshipDTO friendship = friendshipService.get(id);
         return ResponseEntity.status(HttpStatus.OK).body(friendship);
     }
+    
     @GetMapping("/{id}/friendships")
     public ResponseEntity<List<FriendshipDTO>> getAllFriendships(@PathVariable Long id){
         List<FriendshipDTO> friendship = friendshipService.getAllFriendships(id);
         return ResponseEntity.status(HttpStatus.OK).body(friendship);
     }
 
-    @PostMapping
+    @PostMapping("/friendships")
     public ResponseEntity<FriendshipDTO> create(@RequestBody @Valid FriendshipCreateDTO friendshipDTO) {
         FriendshipDTO friendship = friendshipService.create(friendshipDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(friendship); 
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/friendships/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         friendshipService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); 
