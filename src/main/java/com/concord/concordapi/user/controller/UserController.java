@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.concord.concordapi.friendship.dto.response.FriendshipDto;
 import com.concord.concordapi.friendship.service.FriendshipService;
+import com.concord.concordapi.server.dto.response.ServerDto;
 import com.concord.concordapi.user.dto.request.UserPutDto;
 import com.concord.concordapi.user.dto.response.UserDto;
 import com.concord.concordapi.user.service.UserService;
@@ -42,5 +43,10 @@ public class UserController {
     public ResponseEntity<List<FriendshipDto>> getAllFriendships(@PathVariable String username){
         List<FriendshipDto> friendship = friendshipService.getAllFriendships(username);
         return ResponseEntity.status(HttpStatus.OK).body(friendship);
+    }
+    @GetMapping("/{username}/servers")
+    public ResponseEntity<List<ServerDto>> getServers(@PathVariable String username){
+        List<ServerDto> servers = userService.getServers(username);
+        return ResponseEntity.status(HttpStatus.OK).body(servers);
     }
 }

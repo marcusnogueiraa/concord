@@ -8,6 +8,7 @@ logs/
 application-local.properties
 application-test.properties
 files/** 
+logs/
 
 ### STS ###
 .apt_generated
