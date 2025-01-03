@@ -26,4 +26,8 @@ public class UserLoggingAspect {
     public void logAfterChangePassword() {
         logger.info("Password successfully changed for the authenticated user.");
     }
+    @AfterReturning("execution(* com.concord.concordapi.user.service.getAllFriendships(..)) && args(userId)")
+    public void logAfterGetAllFriendships(Long userId) {
+        logger.info("Successfully fetched all friendships for user ID: {}", userId);
+    }
 }
