@@ -12,7 +12,6 @@ import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.friendship.dto.request.FriendshipCreateDTO;
 import com.concord.concordapi.friendship.dto.request.FriendshipPutDTO;
 import com.concord.concordapi.friendship.dto.response.FriendshipDto;
-import com.concord.concordapi.user.dto.UserRequestDto;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
 
@@ -27,7 +26,7 @@ public class FriendshipService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private AuthService authInfoService;
+    private AuthService authService;
 
     public FriendshipDto get(Long id) {
         Friendship friendship = friendshipRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Friendship not found"));
@@ -46,9 +45,7 @@ public class FriendshipService {
 
     public FriendshipDto create(FriendshipCreateDTO friendshipDTO) {
         User from = userRepository.findById(friendshipDTO.fromId()).orElseThrow(()-> new EntityNotFoundException("User id "+friendshipDTO.fromId()+" not found"));
-        if (!from.getUsername().equals(authInfoService.getAuthenticatedUsername())) {
-            throw new AuthorizationDeniedException("User doesn't match the logged-in user");
-        }
+        authService.isUserTheAuthenticated(from);
         User to = userRepository.findById(friendshipDTO.toId()).orElseThrow(()-> new EntityNotFoundException("User id "+friendshipDTO.toId()+" not found"));
         Friendship friendship = new Friendship(null, from, to, FriendshipStatus.PENDING, null, null);
         friendship = friendshipRepository.save(friendship);
@@ -57,21 +54,17 @@ public class FriendshipService {
 
     public void delete(Long id) {
         User from = userRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("User id "+id+" not found"));
-        if (!from.getUsername().equals(authInfoService.getAuthenticatedUsername())) {
-            throw new AuthorizationDeniedException("User doesn't match the logged-in user");
-        }
+        authService.isUserTheAuthenticated(from);
         Friendship friendship = friendshipRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Friendship id "+id+" not found"));
         friendshipRepository.delete(friendship);
     }
 
     public FriendshipDto update(Long id, FriendshipPutDTO friendshipDTO) {
-        User from = userRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("User id "+id+" not found"));
-        if (!from.getUsername().equals(authInfoService.getAuthenticatedUsername())) {
-            throw new AuthorizationDeniedException("User doesn't match the logged-in user");
-        }
         Friendship friendship = friendshipRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Friendship id "+id+" not found"));
+        User to = userRepository.findById(friendship.getTo_user().getId()).orElseThrow(()-> new EntityNotFoundException("User id "+id+" not found"));
+        authService.isUserTheAuthenticated(to);
         friendship.setStatus(friendshipDTO.status());
         friendshipRepository.save(friendship);
         return FriendshipMapper.toDto(friendship);

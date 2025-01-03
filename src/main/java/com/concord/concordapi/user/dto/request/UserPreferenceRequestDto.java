@@ -1,8 +1,8 @@
-package com.concord.concordapi.user.dto;
+package com.concord.concordapi.user.dto.request;
 
 
 public record UserPreferenceRequestDto (
-    String username,
+    Long userId,
     String preferenceKey,
     String preferenceValue
 ) {}

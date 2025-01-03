@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.concord.concordapi.server.dto.ServerPutBodyDTO;
-import com.concord.concordapi.server.dto.ServerCreateBodyDTO;
-import com.concord.concordapi.server.dto.ServerDTO;
+import com.concord.concordapi.server.dto.request.ServerCreateBodyDTO;
+import com.concord.concordapi.server.dto.request.ServerPutBodyDTO;
+import com.concord.concordapi.server.dto.response.ServerDto;
 import com.concord.concordapi.server.service.ServerService;
 
 import jakarta.validation.Valid;
@@ -27,14 +27,14 @@ public class ServerController {
     
 
     @GetMapping("/{id}")
-    public ResponseEntity<ServerDTO> getById(@PathVariable Long id){
-        ServerDTO server = serverService.getById(id);
+    public ResponseEntity<ServerDto> getById(@PathVariable Long id){
+        ServerDto server = serverService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(server);
     }
 
     @PostMapping
-    public ResponseEntity<ServerDTO> create(@RequestBody @Valid ServerCreateBodyDTO server) {
-        ServerDTO createdServer = serverService.create(server);
+    public ResponseEntity<ServerDto> create(@RequestBody @Valid ServerCreateBodyDTO server) {
+        ServerDto createdServer = serverService.create(server);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdServer);
     }
 
@@ -45,14 +45,14 @@ public class ServerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ServerDTO> updateById(@RequestBody @Valid ServerPutBodyDTO server, @PathVariable Long id) {
-        ServerDTO updatedServer = serverService.updateById(id, server);
+    public ResponseEntity<ServerDto> updateById(@RequestBody @Valid ServerPutBodyDTO server, @PathVariable Long id) {
+        ServerDto updatedServer = serverService.updateById(id, server);
         return ResponseEntity.status(HttpStatus.OK).body(updatedServer); 
     }
 
-    @PostMapping("/{serverId}/subscribe/{username}")
-    public ResponseEntity<Void> subscribeServer(@PathVariable String username, @PathVariable Long serverId) {
-        serverService.subscribeUser(username, serverId);
+    @PostMapping("/{serverId}/subscribe/{userId}")
+    public ResponseEntity<Void> subscribeServer(@PathVariable Long serverId, @PathVariable Long userId) {
+        serverService.subscribeUser(userId, serverId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

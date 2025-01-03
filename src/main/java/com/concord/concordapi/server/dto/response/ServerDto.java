@@ -1,13 +1,14 @@
-package com.concord.concordapi.shared.response;
+package com.concord.concordapi.server.dto.response;
 
 import java.util.List;
 
 import com.concord.concordapi.channel.dto.response.ChannelDto;
+import com.concord.concordapi.user.dto.response.UserDto;
 
-public record ServerExpectedDTO (
+public record ServerDto (
     Long id,
     String name,
-    UserExpectedDTO owner,
     String imagePath,
+    UserDto owner,
     List<ChannelDto> channels
 ){}

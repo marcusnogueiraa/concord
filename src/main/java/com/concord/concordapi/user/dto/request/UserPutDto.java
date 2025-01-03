@@ -1,4 +1,4 @@
-package com.concord.concordapi.user.dto;
+package com.concord.concordapi.user.dto.request;
 
 public record UserPutDto (
     String name,

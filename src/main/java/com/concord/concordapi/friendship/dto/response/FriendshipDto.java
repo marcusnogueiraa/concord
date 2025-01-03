@@ -1,11 +1,11 @@
 package com.concord.concordapi.friendship.dto.response;
 
 import com.concord.concordapi.friendship.entity.FriendshipStatus;
-import com.concord.concordapi.user.dto.UserRequestDto;
+import com.concord.concordapi.user.dto.response.UserDto;
 
 public record FriendshipDto (
     Long id,
-    UserRequestDto from,
-    UserRequestDto to,
+    UserDto from,
+    UserDto to,
     FriendshipStatus status
 ){}
