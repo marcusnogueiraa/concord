@@ -32,6 +32,11 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User "+id+" not found."));
         return UserMapper.toDto(user);
     }
+    public Long getUserIdByEmail(String email) {
+        return userRepository.findByEmail(email)
+        .orElseThrow(()->new EntityNotFoundException("User email "+email+" not found"))
+        .getId();
+    }
 
     public UserDto update(UserPutDto userPutDto, Long id){
         User user = userRepository.findById(id)

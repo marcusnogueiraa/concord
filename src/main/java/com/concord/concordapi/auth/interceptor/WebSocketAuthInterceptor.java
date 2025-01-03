@@ -28,14 +28,14 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
 
         String token = request.getHeaders().getFirst("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
-            String jwtToken = token.substring(7);  // Remove "Bearer " do token
+            String jwtToken = token.substring(7); 
 
-            String username = jwtTokenService.getSubjectFromToken(jwtToken);
-            Long userId = userService.findUserId(username);
+            String email = jwtTokenService.getSubjectFromToken(jwtToken);
+            Long userId = userService.getUserIdByEmail(email);
             attributes.put("userId", userId);
         }
 
-        return true;  // Permite o handshake continuar
+        return true;  
        
     }
     @Override

@@ -68,9 +68,12 @@ public class AuthService {
         String password = loginUserDto.password();
         verifyLoginAttempts(clientIp);
         try {
+            
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                     new UsernamePasswordAuthenticationToken(email, password);
+            System.out.println(usernamePasswordAuthenticationToken);
             Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+            System.out.println("ta criando");
             clearLoginAttempts(email, clientIp);
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             return new RecoveryJwtTokenDto(jwtTokenService.generateToken(userDetails));

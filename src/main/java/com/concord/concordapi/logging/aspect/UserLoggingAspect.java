@@ -17,12 +17,13 @@ public class UserLoggingAspect {
         logger.info("Successfully fetched user with id: {}", id);
     }
 
-    @AfterReturning("execution(* com.concord.concordapi.user.service.UserService.changePassword(..))")
-    public void logAfterChangePassword() {
-        logger.info("Password successfully changed for the authenticated user.");
+    @AfterReturning("execution(* com.concord.concordapi.user.service.UserService.findUserIdByEmail(..)) && args(email)")
+    public void logAfterFindUserId(String email) {
+        logger.info("Successfully fetched user ID for username: {}", email);
     }
-    @AfterReturning("execution(* com.concord.concordapi.user.service.getAllFriendships(..)) && args(userId)")
-    public void logAfterGetAllFriendships(Long userId) {
-        logger.info("Successfully fetched all friendships for user ID: {}", userId);
+
+    @AfterReturning("execution(* com.concord.concordapi.user.service.UserService.update(..)) && args(userPutDto, id)")
+    public void logAfterGetAllFriendships(Object userPutDto, Long userId) {
+        logger.info("Successfully fetched all friendships for user: {} ID: {}", userPutDto, userId);
     }
 }

@@ -48,7 +48,7 @@ public class ServerControllerTest {
     public void setup() throws Exception {
         testUser = new User(null, "user" + iterator, "user" + iterator, "user" + iterator + "@gmail.com", securityConfiguration.passwordEncoder().encode("123456"), null, null, null, null);
         testUser = userRepository.save(testUser);
-        String jsonRequest = "{ \"username\": \"" + testUser.getUsername() + "\", \"password\": \"123456\" }";
+        String jsonRequest = "{ \"email\": \"" + testUser.getEmail() + "\", \"password\": \"123456\" }";
         
         ResponseEntity<String> response = restTemplate.exchange(
                 "http://localhost:"+port+"/api/auth/login",
@@ -114,7 +114,7 @@ public class ServerControllerTest {
         HttpHeaders headers = UtilsMethods.createJsonHeaders();
         headers.setBearerAuth(token);
         ResponseEntity<String> responseEntity = restTemplate.exchange(
-            "http://localhost:" + port + "/api/servers/" + actualServer.id()+"/subscribe/"+testUser.getUsername(),
+            "http://localhost:" + port + "/api/servers/" + actualServer.id()+"/subscribe/"+testUser.getId(),
             HttpMethod.POST,
             new HttpEntity<>(headers),
             String.class
