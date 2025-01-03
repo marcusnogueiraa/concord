@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import com.concord.concordapi.shared.response.ServerExpectedDTO;
+import com.concord.concordapi.server.e2e.response.ServerExpectedDTO;
 import com.concord.concordapi.user.entity.User;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

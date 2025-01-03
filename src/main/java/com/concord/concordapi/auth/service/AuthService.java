@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.concord.concordapi.user.entity.User;
+import com.concord.concordapi.user.mapper.UserMapper;
 import com.concord.concordapi.auth.dto.CreateUserDto;
 import com.concord.concordapi.auth.dto.ForgotPasswordRequest;
 import com.concord.concordapi.auth.dto.LoginUserDto;
@@ -71,12 +72,10 @@ public class AuthService {
             
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                     new UsernamePasswordAuthenticationToken(email, password);
-            System.out.println(usernamePasswordAuthenticationToken);
             Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
-            System.out.println("ta criando");
             clearLoginAttempts(email, clientIp);
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            return new RecoveryJwtTokenDto(jwtTokenService.generateToken(userDetails));
+            return new RecoveryJwtTokenDto(jwtTokenService.generateToken(userDetails), UserMapper.toDto(userDetails.getUser()));
         } catch (BadCredentialsException exc) {
             incrementLoginAttempts(email, clientIp);
             throw new BadCredentialsException("Invalid email or password");

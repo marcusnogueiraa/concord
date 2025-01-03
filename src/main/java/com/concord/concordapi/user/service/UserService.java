@@ -32,14 +32,19 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User "+id+" not found."));
         return UserMapper.toDto(user);
     }
+    public UserDto getByUsername(String username){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User "+username+" not found."));
+        return UserMapper.toDto(user);
+    }
     public Long getUserIdByEmail(String email) {
         return userRepository.findByEmail(email)
         .orElseThrow(()->new EntityNotFoundException("User email "+email+" not found"))
         .getId();
     }
 
-    public UserDto update(UserPutDto userPutDto, Long id){
-        User user = userRepository.findById(id)
+    public UserDto update(UserPutDto userPutDto, String username){
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(()-> new EntityNotFoundException("User authenticated not found"));
         authService.isUserTheAuthenticated(user);
         if(userPutDto.password() != null) user.setPassword(securityConfiguration.passwordEncoder().encode(userPutDto.password()));

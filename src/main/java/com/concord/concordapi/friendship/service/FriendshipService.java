@@ -33,8 +33,8 @@ public class FriendshipService {
         return FriendshipMapper.toDto(friendship);
     }
 
-    public List<FriendshipDto> getAllFriendships(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("User id "+userId+" not found"));
+    public List<FriendshipDto> getAllFriendships(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(()-> new EntityNotFoundException("User id "+username+" not found"));
         List<Friendship> friendships = friendshipRepository.findAllByUser(user);
         List<FriendshipDto> friendshipDTOs = new ArrayList<>();
         for(Friendship friendship : friendships){

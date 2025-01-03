@@ -28,19 +28,19 @@ public class UserController {
     @Autowired
     private FriendshipService friendshipService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getById(@PathVariable("id") Long id){
-        UserDto user = userService.getById(id);
+    @GetMapping("/{username}")
+    public ResponseEntity<UserDto> getById(@PathVariable("username") String username){
+        UserDto user = userService.getByUsername(username);
         return ResponseEntity.ok(user);
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDto> update(@RequestBody UserPutDto userPutDto, @PathVariable("id") Long id){
-        UserDto user = userService.update(userPutDto, id);
+    @PutMapping("/{username}")
+    public ResponseEntity<UserDto> update(@RequestBody UserPutDto userPutDto, @PathVariable("username") String username){
+        UserDto user = userService.update(userPutDto, username);
         return ResponseEntity.ok(user);
     }
-    @GetMapping("/{id}/friendships")
-    public ResponseEntity<List<FriendshipDto>> getAllFriendships(@PathVariable Long id){
-        List<FriendshipDto> friendship = friendshipService.getAllFriendships(id);
+    @GetMapping("/{username}/friendships")
+    public ResponseEntity<List<FriendshipDto>> getAllFriendships(@PathVariable String username){
+        List<FriendshipDto> friendship = friendshipService.getAllFriendships(username);
         return ResponseEntity.status(HttpStatus.OK).body(friendship);
     }
 }

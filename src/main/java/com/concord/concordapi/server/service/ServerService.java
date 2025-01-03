@@ -83,8 +83,8 @@ public class ServerService {
         Server createdServer = serverRepository.save(updatedServer);
         return ServerMapper.toDto(createdServer);
     }
-    public void subscribeUser(Long userId, Long serverId){
-        User user = userRepository.findById(userId)
+    public void subscribeUser(String username, Long serverId){
+        User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Server server = serverRepository.findById(serverId)
             .orElseThrow(() -> new EntityNotFoundException("Server not found"));

@@ -18,9 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 
+import com.concord.concordapi.channel.e2e.response.UserExpectedDTO;
+import com.concord.concordapi.server.e2e.response.ServerExpectedDTO;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
-import com.concord.concordapi.shared.response.ServerExpectedDTO;
-import com.concord.concordapi.shared.response.UserExpectedDTO;
 import com.concord.concordapi.shared.util.UtilsMethods;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
@@ -114,7 +114,7 @@ public class ServerControllerTest {
         HttpHeaders headers = UtilsMethods.createJsonHeaders();
         headers.setBearerAuth(token);
         ResponseEntity<String> responseEntity = restTemplate.exchange(
-            "http://localhost:" + port + "/api/servers/" + actualServer.id()+"/subscribe/"+testUser.getId(),
+            "http://localhost:" + port + "/api/servers/" + actualServer.id()+"/subscribe/"+testUser.getUsername(),
             HttpMethod.POST,
             new HttpEntity<>(headers),
             String.class

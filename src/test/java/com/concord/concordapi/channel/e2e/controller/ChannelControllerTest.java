@@ -20,8 +20,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 
 import com.concord.concordapi.channel.dto.response.ChannelDto;
+import com.concord.concordapi.server.e2e.response.ServerExpectedDTO;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
-import com.concord.concordapi.shared.response.ServerExpectedDTO;
 import com.concord.concordapi.shared.util.UtilsMethods;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
