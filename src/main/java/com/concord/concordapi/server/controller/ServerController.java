@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.server.dto.request.ServerCreateBodyDTO;
 import com.concord.concordapi.server.dto.request.ServerPutBodyDTO;
 import com.concord.concordapi.server.dto.response.ServerDto;
@@ -24,7 +25,6 @@ import jakarta.validation.Valid;
 public class ServerController {
     @Autowired
     private ServerService serverService;
-    
 
     @GetMapping("/{id}")
     public ResponseEntity<ServerDto> getById(@PathVariable Long id){

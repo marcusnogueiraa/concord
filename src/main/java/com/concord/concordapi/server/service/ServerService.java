@@ -49,6 +49,8 @@ public class ServerService {
             newServer.setImagePath(prefix.getDisplayName()+"/"+server.imageTempPath());
         }
         newServer = serverRepository.save(newServer);
+        owner.getServers().add(newServer);
+        userRepository.save(owner);
         return ServerMapper.toDto(newServer);
     }
     
@@ -83,6 +85,7 @@ public class ServerService {
         Server createdServer = serverRepository.save(updatedServer);
         return ServerMapper.toDto(createdServer);
     }
+
     public void subscribeUser(String username, Long serverId){
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));

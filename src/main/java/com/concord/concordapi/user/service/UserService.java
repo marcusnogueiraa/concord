@@ -10,6 +10,7 @@ import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.fileStorage.entity.FilePrefix;
 import com.concord.concordapi.fileStorage.service.FileStorageService;
 import com.concord.concordapi.server.dto.response.ServerDto;
+import com.concord.concordapi.server.dto.response.ServerSummaryDto;
 import com.concord.concordapi.server.entity.Server;
 import com.concord.concordapi.server.mapper.ServerMapper;
 import com.concord.concordapi.shared.config.SecurityConfiguration;
@@ -47,10 +48,11 @@ public class UserService {
         .orElseThrow(()->new EntityNotFoundException("User email "+email+" not found"))
         .getId();
     }
-    public List<ServerDto> getServers(String username){
+
+    public List<ServerSummaryDto> getServersSummary(String username){
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User "+username+" not found."));
-        return ServerMapper.toDtos(user.getServers());
+        return ServerMapper.toSummaryDtos(user.getServers());
     }
 
     public UserDto update(UserPutDto userPutDto, String username){
