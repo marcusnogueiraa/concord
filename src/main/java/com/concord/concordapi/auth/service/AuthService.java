@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.concord.concordapi.user.entity.User;
+import com.concord.concordapi.user.mapper.UserMapper;
 import com.concord.concordapi.auth.dto.CreateUserDto;
 import com.concord.concordapi.auth.dto.ForgotPasswordRequest;
 import com.concord.concordapi.auth.dto.LoginUserDto;
@@ -60,20 +62,23 @@ public class AuthService {
     private static final int BLOCK_TIME_IN_SECONDS = 900; 
     private final static int EMAIL_EXPIRE_TIME_IN_SECONDS = 300;
 
+    
+
     public RecoveryJwtTokenDto authenticateUser(LoginUserDto loginUserDto, String clientIp) {
-        String username = loginUserDto.username();
+        String email = loginUserDto.email();
         String password = loginUserDto.password();
-        verifyLoginAttempts(username, clientIp);
+        verifyLoginAttempts(clientIp);
         try {
+            
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                    new UsernamePasswordAuthenticationToken(username, password);
+                    new UsernamePasswordAuthenticationToken(email, password);
             Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
-            clearLoginAttempts(username, clientIp);
+            clearLoginAttempts(email, clientIp);
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            return new RecoveryJwtTokenDto(jwtTokenService.generateToken(userDetails));
+            return new RecoveryJwtTokenDto(jwtTokenService.generateToken(userDetails), UserMapper.toDto(userDetails.getUser()));
         } catch (BadCredentialsException exc) {
-            incrementLoginAttempts(username, clientIp);
-            throw new BadCredentialsException("Invalid username or password");
+            incrementLoginAttempts(email, clientIp);
+            throw new BadCredentialsException("Invalid email or password");
         }
     }
 
@@ -89,44 +94,52 @@ public class AuthService {
         sendVerificationCode(newUser);
     }
 
-    public void confirmUserRegister(String code){
+    public User confirmUserRegister(String code){
         String key = CREATED_USER_CODE_KEY + code;
         User user = (User) redisService.find(key);
         if (user == null) throw new IncorrectCodeException("Incorrect code.");
         else userRepository.save(user);
+        return user;
     }
 
     public void sendForgotPassword(@RequestBody ForgotPasswordRequest request, String clientIp){
         User user = userRepository.findByEmail(request.email())
             .orElseThrow(() -> new RuntimeException("User not found with email "+request.email()));
-        verifyForgotPasswordAttempts(user.getUsername(), clientIp);
+        verifyForgotPasswordAttempts(clientIp);
         String token = UUID.randomUUID().toString();
         
         
-        redisService.save(RESET_TOKEN_KEY + token, user.getUsername(), EMAIL_EXPIRE_TIME_IN_SECONDS);
+        redisService.save(RESET_TOKEN_KEY + token, user.getEmail(), EMAIL_EXPIRE_TIME_IN_SECONDS);
 
         String resetLink = "http://localhost:8080/api/auth/reset-password?token=" + token;
         try{
             emailService.sendForgotPasswordEmail(user.getEmail(), resetLink);
-            incrementForgotPasswordAttempts(user.getUsername(), clientIp);
+            incrementForgotPasswordAttempts(user.getEmail(), clientIp);
         } catch (Exception err) {
             throw new SMTPServerException("SMTP Server Fail");
         }
         
     }
+    
     public void resetPassword(String token, String newPassword, String clientIp) {
-        String username = (String) redisService.find(RESET_TOKEN_KEY + token);
-        if(username == null){
+        String email = (String) redisService.find(RESET_TOKEN_KEY + token);
+        if(email == null){
             throw new IncorrectTokenException("The reset password token is malformed, invalid or expired.");
         }
-        User user = userRepository.findByUsername(username).orElseThrow(()->new EntityNotFoundException("User dont find"));
+        User user = userRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("User dont find"));
         user.setPassword(securityConfiguration.passwordEncoder().encode(newPassword));
         userRepository.save(user);
-        clearForgotPasswordAttempts(username, clientIp);
+        clearForgotPasswordAttempts(email, clientIp);
         redisService.delete(RESET_TOKEN_KEY+token);
-        }
+    }
 
-    public String getAuthenticatedUsername() {
+    public void isUserTheAuthenticated(User user){
+        if (!user.getEmail().equals(getAuthenticatedEmail())) {
+            throw new AuthorizationDeniedException("Authenticated User doesn't have permission to perform this action.");
+        }
+    }
+
+    public String getAuthenticatedEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated())
             return authentication.getName();
@@ -134,42 +147,45 @@ public class AuthService {
     }
 
     public Long getAuthenticatedUserId(){
-        String username = getAuthenticatedUsername();
-        return userRepository.getIdByUsername(username);
+        String email = getAuthenticatedEmail();
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(()-> new EntityNotFoundException("User email "+email+" not found"));
+        return user.getId();
     }
 
-    private void verifyLoginAttempts(String username, String clientIp){
+    private void verifyLoginAttempts(String clientIp){
         String key = BLOCKED_LOGIN_IP_KEY + clientIp;
         boolean ipAddressIsBlocked = redisService.exists(key);
         if (ipAddressIsBlocked)
             throw new MaxRetryException("Ip Address " + clientIp + " login max retry.");
     }
-    private void verifyForgotPasswordAttempts(String username, String clientIp){
+
+    private void verifyForgotPasswordAttempts(String clientIp){
         String key = BLOCKED_FORGOT_PASSWORD_IP_KEY + clientIp;
         boolean ipAddressIsBlocked = redisService.exists(key);
         if (ipAddressIsBlocked)
             throw new MaxRetryException("Ip Address " + clientIp + " forgot password max retry.");
     }
 
-    private void clearLoginAttempts(String username, String clientIp){
-        String key = LOGIN_ATTEMPTS_KEY + ":" + clientIp + ":" + username;
+    private void clearLoginAttempts(String email, String clientIp){
+        String key = LOGIN_ATTEMPTS_KEY + ":" + clientIp + ":" + email;
         redisService.delete(key);
     }
-    private void clearForgotPasswordAttempts(String username, String clientIp){
-        String key = FORGOT_PASSWORD_ATTEMPTS_KEY + ":" + clientIp + ":" + username;
+    private void clearForgotPasswordAttempts(String email, String clientIp){
+        String key = FORGOT_PASSWORD_ATTEMPTS_KEY + ":" + clientIp + ":" + email;
         redisService.delete(key);
     }
 
-    private void incrementLoginAttempts(String username, String clientIp){
-        String key = LOGIN_ATTEMPTS_KEY + ":" + clientIp + ":" + username;
+    private void incrementLoginAttempts(String email, String clientIp){
+        String key = LOGIN_ATTEMPTS_KEY + ":" + clientIp + ":" + email;
         redisService.saveIfDontExists(key, 0, BLOCK_TIME_IN_SECONDS);
         Long attempts = redisService.increment(key);
         
         if (attempts >= MAX_ATTEMPTS) 
             redisService.save(BLOCKED_LOGIN_IP_KEY + clientIp, 1, BLOCK_TIME_IN_SECONDS);
     }
-    private void incrementForgotPasswordAttempts(String username, String clientIp){
-        String key = FORGOT_PASSWORD_ATTEMPTS_KEY + ":" + clientIp + ":" + username;
+    private void incrementForgotPasswordAttempts(String email, String clientIp){
+        String key = FORGOT_PASSWORD_ATTEMPTS_KEY + ":" + clientIp + ":" + email;
         redisService.saveIfDontExists(key, 0, BLOCK_TIME_IN_SECONDS);
         Long attempts = redisService.increment(key);
         
@@ -210,5 +226,6 @@ public class AuthService {
 
         return code.toString();
     }
+    
 
 }

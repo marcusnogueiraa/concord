@@ -37,6 +37,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'com.auth0:java-jwt:4.4.0'
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	compileOnly 'org.projectlombok:lombok'
@@ -45,9 +46,13 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.slf4j:slf4j-api:2.0.9'
+	implementation 'ch.qos.logback:logback-classic:1.4.11'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-	implementation 'jakarta.mail:jakarta.mail-api:2.0.1' // Adiciona a API
-    implementation 'com.sun.mail:jakarta.mail:2.0.1'     // Implementação necessária
+	implementation 'jakarta.mail:jakarta.mail-api:2.0.1' 
+    implementation 'com.sun.mail:jakarta.mail:2.0.1'     
+	testImplementation 'com.h2database:h2'
+	
 	
 }
 

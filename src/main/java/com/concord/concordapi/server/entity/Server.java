@@ -2,17 +2,15 @@ package com.concord.concordapi.server.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import com.concord.concordapi.channel.entity.Channel;
 import com.concord.concordapi.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,19 +41,20 @@ public class Server {
     @NotBlank
     private String name;
 
-    @ManyToOne // Define a relação Many-to-One
-    @JoinColumn(name = "owner_id", nullable = false) // Mapeia a chave estrangeira
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "server", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Channel> channels;
 
-    
-    @ManyToMany(mappedBy = "servers", fetch = FetchType.LAZY)
-    @JsonBackReference  // Evita a recursão ao serializar
+    @ManyToMany(mappedBy = "servers")
+    @JsonBackReference
     private Set<User> users;
     
+    private String imagePath;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -69,14 +68,5 @@ public class Server {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-    @Override
-    public String toString() {
-        return "Server{id=" + id + ", name='" + name + "'}";
-    }
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name); // Usando apenas atributos simples
-    }
-
   
 }

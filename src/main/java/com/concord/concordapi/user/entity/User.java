@@ -1,10 +1,9 @@
 package com.concord.concordapi.user.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import org.springframework.web.socket.TextMessage;
 
 import com.concord.concordapi.server.entity.Server;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -59,6 +58,8 @@ public class User {
     @NotBlank
     private String password;
 
+    private String imagePath;
+
     @ManyToMany
     @JoinTable(
         name = "user_server", // Nome da tabela de junção
@@ -66,7 +67,7 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "server_id") // Coluna que referencia o servidor
     )
     @JsonIgnore
-    private Set<Server> servers;
+    private List<Server> servers;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -84,4 +85,14 @@ public class User {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", username='" + username + "' name='"+name+"', password='"+password+"' email='"+email+"'}";
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username); // Usando apenas atributos simples
+    }
+
 }

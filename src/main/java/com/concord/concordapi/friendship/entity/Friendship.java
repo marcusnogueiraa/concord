@@ -39,7 +39,7 @@ public class Friendship {
     private User to_user;
     
     @NotBlank
-    private String status;
+    private FriendshipStatus status;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

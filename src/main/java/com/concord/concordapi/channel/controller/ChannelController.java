@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.concord.concordapi.channel.dto.ChannelPutBodyDTO;
-import com.concord.concordapi.channel.dto.ChannelRequestBodyDTO;
-import com.concord.concordapi.channel.entity.Channel;
+import com.concord.concordapi.channel.dto.request.ChannelCreateBodyDto;
+import com.concord.concordapi.channel.dto.request.ChannelPutBodyDto;
+import com.concord.concordapi.channel.dto.response.ChannelDto;
 import com.concord.concordapi.channel.service.ChannelService;
 
 import jakarta.validation.Valid;
@@ -26,26 +26,26 @@ public class ChannelController {
     private ChannelService channelService;
 
     @GetMapping("/channels/{id}")
-    public ResponseEntity<Channel> get(@PathVariable Long id){
-        Channel channel = channelService.get(id);
+    public ResponseEntity<ChannelDto> get(@PathVariable Long id){
+        ChannelDto channel = channelService.get(id);
         return ResponseEntity.status(HttpStatus.OK).body(channel);
     }
 
     @PostMapping("/channels")
-    public ResponseEntity<Channel> create(@RequestBody @Valid ChannelRequestBodyDTO channel) {
-        Channel createdChannel = channelService.create(channel);
+    public ResponseEntity<ChannelDto> create(@RequestBody @Valid ChannelCreateBodyDto channel) {
+        ChannelDto createdChannel = channelService.create(channel);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel); 
     }
 
     @DeleteMapping("/channels/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         channelService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); 
     }
 
     @PutMapping("/channels/{id}")
-    public ResponseEntity<Channel> update(@RequestBody @Valid ChannelPutBodyDTO channel, @PathVariable Long id) {
-        Channel updatedChannel = channelService.update(id, channel);
+    public ResponseEntity<ChannelDto> update(@RequestBody @Valid ChannelPutBodyDto channel, @PathVariable Long id) {
+        ChannelDto updatedChannel = channelService.update(id, channel);
         return ResponseEntity.status(HttpStatus.OK).body(updatedChannel); 
     }
 }
