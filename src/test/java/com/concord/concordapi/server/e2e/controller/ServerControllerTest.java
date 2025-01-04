@@ -3,6 +3,7 @@ package com.concord.concordapi.server.e2e.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,23 +19,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 
-import com.concord.concordapi.channel.e2e.response.UserExpectedDTO;
-import com.concord.concordapi.server.e2e.response.ServerExpectedDTO;
-import com.concord.concordapi.shared.config.SecurityConfiguration;
+import com.concord.concordapi.auth.dto.RecoveryJwtTokenDto;
+import com.concord.concordapi.auth.e2e.service.AuthServiceTest;
+import com.concord.concordapi.server.dto.response.ServerDto;
+import com.concord.concordapi.server.e2e.service.ServerServiceTest;
 import com.concord.concordapi.shared.util.UtilsMethods;
+import com.concord.concordapi.user.dto.response.UserDto;
 import com.concord.concordapi.user.entity.User;
-import com.concord.concordapi.user.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ServerControllerTest {
+public class ServerControllerTest{
     @Autowired
-    private SecurityConfiguration securityConfiguration;
+    private ServerServiceTest serverServiceTest;
     @Autowired
-    private UserRepository userRepository;
+    private AuthServiceTest authServiceTest;
     @Autowired
     private RestTemplate restTemplate;
     @LocalServerPort
@@ -42,75 +43,64 @@ public class ServerControllerTest {
 
     private User testUser;
     private String token;
-    private int iterator=0;
 
     @BeforeEach
     public void setup() throws Exception {
-        testUser = new User(null, "user" + iterator, "user" + iterator, "user" + iterator + "@gmail.com", securityConfiguration.passwordEncoder().encode("123456"), null, null, null, null);
-        testUser = userRepository.save(testUser);
-        String jsonRequest = "{ \"email\": \"" + testUser.getEmail() + "\", \"password\": \"123456\" }";
-        
-        ResponseEntity<String> response = restTemplate.exchange(
-                "http://localhost:"+port+"/api/auth/login",
-                HttpMethod.POST,
-                new HttpEntity<>(jsonRequest, UtilsMethods.createJsonHeaders()),
-                String.class);
-
-        token = UtilsMethods.extractFromResponse(response.getBody());
-        iterator++;
+        String uuid = UtilsMethods.generateUniqueCode();
+        testUser = new User(null, "user" + uuid, "user" + uuid, "user" + uuid + "@gmail.com", "123456", null, null, null, null);
+        authServiceTest.registerAndConfirmUser(port, testUser);
+        RecoveryJwtTokenDto loginResponse = authServiceTest.login(port, testUser);
+        testUser.setId(loginResponse.user().id());
+        testUser.setCreatedAt(loginResponse.user().createdAt());
+        token = loginResponse.token();
     }
 
     @Test
     public void testCreateServer() throws Exception {
-        ServerExpectedDTO actualResponse = UtilsMethods.createServer(restTemplate, port, token, testUser, "Server 1");
-        ServerExpectedDTO expectedResponse = new ServerExpectedDTO(actualResponse.id(), "Server 1", new UserExpectedDTO(testUser.getId(), testUser.getName(), testUser.getUsername(), testUser.getEmail(), testUser.getImagePath(), null), null, List.of());
+        ServerDto actualResponse = serverServiceTest.createServer(port, token, testUser, "Server 1");
+        ServerDto expectedResponse = new ServerDto(actualResponse.id(), "Server 1", null, new UserDto(testUser.getId(), testUser.getName(), testUser.getUsername(), null, testUser.getEmail(), testUser.getCreatedAt()), List.of());
         assertEquals(expectedResponse, actualResponse);
 
     }
 
     @Test
     public void testGetServerById() throws Exception {
-        ServerExpectedDTO actualServer = UtilsMethods.createServer(restTemplate, port, token, testUser, "Server 2");
+        ServerDto actualServer = serverServiceTest.createServer(port, token, testUser, "Server 2");
         HttpHeaders headers = UtilsMethods.createJsonHeaders();
         headers.setBearerAuth(token);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
+        ResponseEntity<ServerDto> responseEntity = restTemplate.exchange(
             "http://localhost:" + port + "/api/servers/" + actualServer.id(),
             HttpMethod.GET,
             new HttpEntity<>(null, headers),
-            String.class
+            ServerDto.class
         );
-        ObjectMapper objectMapper = new ObjectMapper();
-        String responseBody = responseEntity.getBody().replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
-        ServerExpectedDTO actualResponse = objectMapper.readValue(responseBody, ServerExpectedDTO.class);
-        ServerExpectedDTO expectedResponse = new ServerExpectedDTO(actualResponse.id(), "Server 2", new UserExpectedDTO(testUser.getId(), testUser.getName(), testUser.getUsername(), testUser.getEmail(), null, null), null, List.of());
+       
+        ServerDto actualResponse = responseEntity.getBody();
+        ServerDto expectedResponse = new ServerDto(actualResponse.id(), "Server 2", null, new UserDto(testUser.getId(), testUser.getName(), testUser.getUsername(), null, testUser.getEmail(), testUser.getCreatedAt()), List.of());
         assertEquals(expectedResponse, actualResponse);
         
     }
 
     @Test
     public void testUpdateServer() throws Exception {
-        ServerExpectedDTO actualServer = UtilsMethods.createServer(restTemplate, port, token, testUser, "Server 3");
-        ObjectMapper objectMapper = new ObjectMapper();
+        ServerDto actualServer = serverServiceTest.createServer(port, token, testUser, "Server 3");
         String jsonContent = "{\"name\":\"Server 3 modified\"}";
         HttpHeaders headers = UtilsMethods.createJsonHeaders();
         headers.setBearerAuth(token);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
+        ResponseEntity<ServerDto> responseEntity = restTemplate.exchange(
             "http://localhost:" + port + "/api/servers/" + actualServer.id(),
             HttpMethod.PUT,
             new HttpEntity<>(jsonContent, headers),
-            String.class
+            ServerDto.class
         );
-
-        String responseBody = responseEntity.getBody().replaceAll("\"createdAt\":\"[^\"]*\"", "\"createdAt\":null");
-        ServerExpectedDTO actualResponse = objectMapper.readValue(responseBody, ServerExpectedDTO.class);
-        ServerExpectedDTO expectedResponse = new ServerExpectedDTO(actualResponse.id(), "Server 3 modified", new UserExpectedDTO(testUser.getId(), testUser.getName(), testUser.getUsername(), testUser.getEmail(), null, null), null, List.of());
+        ServerDto actualResponse = responseEntity.getBody();
+        ServerDto expectedResponse = new ServerDto(actualResponse.id(), "Server 3 modified", null, new UserDto(testUser.getId(), testUser.getName(), testUser.getUsername(), null, testUser.getEmail(), testUser.getCreatedAt()), List.of());
         assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     public void testSubscribeServer() throws Exception {
-        ServerExpectedDTO actualServer = UtilsMethods.createServer(restTemplate, port, token, testUser, "Server 4");
-
+        ServerDto actualServer = serverServiceTest.createServer(port, token, testUser, "Server 4");
         HttpHeaders headers = UtilsMethods.createJsonHeaders();
         headers.setBearerAuth(token);
         ResponseEntity<String> responseEntity = restTemplate.exchange(
@@ -124,7 +114,7 @@ public class ServerControllerTest {
 
     @Test
     public void testDeleteServer() throws Exception {
-        ServerExpectedDTO actualServer = UtilsMethods.createServer(restTemplate, port, token, testUser, "Server 5");
+        ServerDto actualServer = serverServiceTest.createServer(port, token, testUser, "Server 5");
         HttpHeaders headers = UtilsMethods.createJsonHeaders();
         headers.setBearerAuth(token);
         ResponseEntity<String> responseEntity = restTemplate.exchange(

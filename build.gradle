@@ -52,8 +52,9 @@ dependencies {
 	implementation 'jakarta.mail:jakarta.mail-api:2.0.1' 
     implementation 'com.sun.mail:jakarta.mail:2.0.1'     
 	testImplementation 'com.h2database:h2'
-	
-	
+	testImplementation "org.junit.jupiter:junit-jupiter:5.8.1"
+	testImplementation "org.testcontainers:testcontainers:1.20.4"
+	testImplementation "org.testcontainers:junit-jupiter:1.20.4"
 }
 
 tasks.named('test') {
