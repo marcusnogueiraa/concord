@@ -24,7 +24,6 @@ public class AppConfig {
     
 
     @Bean
-    @Scope("singleton")
     public EmailService emailService() {
         return emailServiceTest;
     }
