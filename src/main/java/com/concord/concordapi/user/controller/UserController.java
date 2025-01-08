@@ -44,6 +44,11 @@ public class UserController {
         List<FriendshipDto> friendship = friendshipService.getAllFriendships(username);
         return ResponseEntity.status(HttpStatus.OK).body(friendship);
     }
+    @GetMapping("/{username}/pending-friendships")
+    public ResponseEntity<List<FriendshipDto>> getAllPendingFriendships(@PathVariable String username){
+        List<FriendshipDto> friendship = friendshipService.getAllPendingFriendships(username);
+        return ResponseEntity.status(HttpStatus.OK).body(friendship);
+    }
     @GetMapping("/{username}/servers")
     public ResponseEntity<List<ServerSummaryDto>> getServers(@PathVariable String username){
         List<ServerSummaryDto> servers = userService.getServersSummary(username);
