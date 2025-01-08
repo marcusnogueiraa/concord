@@ -44,9 +44,8 @@ public class FriendshipService {
     }
 
     public FriendshipDto create(FriendshipCreateDTO friendshipDTO) {
-        User from = userRepository.findById(friendshipDTO.fromId()).orElseThrow(()-> new EntityNotFoundException("User id "+friendshipDTO.fromId()+" not found"));
-        authService.isUserTheAuthenticated(from);
-        User to = userRepository.findById(friendshipDTO.toId()).orElseThrow(()-> new EntityNotFoundException("User id "+friendshipDTO.toId()+" not found"));
+        User from = userRepository.findById(authService.getAuthenticatedUserId()).orElseThrow(()-> new EntityNotFoundException("User id "+authService.getAuthenticatedUserId()+" not found"));
+        User to = userRepository.findByUsername(friendshipDTO.toUsername()).orElseThrow(()-> new EntityNotFoundException("User with username "+friendshipDTO.toUsername()+" not found"));
         Friendship friendship = new Friendship(null, from, to, FriendshipStatus.PENDING, null, null);
         friendship = friendshipRepository.save(friendship);
         return FriendshipMapper.toDto(friendship);
