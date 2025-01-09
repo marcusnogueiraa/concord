@@ -6,6 +6,7 @@ import com.concord.concordapi.auth.exception.MaxRetryException;
 import com.concord.concordapi.auth.exception.UserAlreadyExistsException;
 import com.concord.concordapi.shared.dto.ErrorResponseDTO;
 import com.concord.concordapi.shared.exception.EntityNotFoundException;
+import com.concord.concordapi.shared.exception.FailManipulationFriendship;
 import com.concord.concordapi.shared.exception.FileFormatException;
 import com.concord.concordapi.shared.exception.FileNotFoundException;
 import com.concord.concordapi.shared.exception.FileStorageException;
@@ -167,6 +168,16 @@ public class GlobalExceptionHandler {
             request.getRequestURI());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
+
+    @ExceptionHandler(FailManipulationFriendship.class)
+    public ResponseEntity<ErrorResponseDTO> handleSMTPServerError(FailManipulationFriendship exc, HttpServletRequest request){
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+            exc.getMessage(),
+            HttpStatus.BAD_REQUEST.value(), 
+            request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(FileStorageException.class)
     public ResponseEntity<ErrorResponseDTO> handleSMTPServerError(FileStorageException exc, HttpServletRequest request){
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
