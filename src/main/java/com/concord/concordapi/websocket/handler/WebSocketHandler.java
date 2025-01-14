@@ -19,7 +19,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private ConnectMessageHandler connectMessageHandler;
+    private ConnectHandler connectHandler;
     @Autowired
     private UserMessageHandler userMessageHandler;
     @Autowired
@@ -40,13 +40,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         Long userId = sessionService.getUserIdBySession(session);
         System.out.println("User disconnected :" + userId);
-        sessionService.removeSession(session);
+        if (userId != null) sessionService.removeSession(session);
     }
 
     private void delegateHandler(ClientMessage<?> clientMessage, WebSocketSession session) throws Exception {
         switch (clientMessage.getEventType()) {
             case CONNECT -> {
                 ConnectContent content = objectMapper.convertValue(clientMessage.getContent(), ConnectContent.class);
+                connectHandler.handle(content, session);
             }
             case USER_MESSAGE -> {
                 UserMessageContent content = objectMapper.convertValue(clientMessage.getContent(), UserMessageContent.class);
@@ -58,9 +59,5 @@ public class WebSocketHandler extends TextWebSocketHandler {
             }
             default -> throw new IllegalArgumentException("Unknown EventType: " + clientMessage.getEventType());
         }
-    }
-
-    private void checkAutorization(){
-        sessionService.
     }
 }

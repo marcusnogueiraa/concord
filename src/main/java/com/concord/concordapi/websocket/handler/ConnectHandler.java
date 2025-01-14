@@ -10,7 +10,7 @@ import com.concord.concordapi.user.service.UserService;
 import com.concord.concordapi.websocket.entity.content.ConnectContent;
 
 @Component
-public class ConnectMessageHandler extends EventHandler<ConnectContent>{
+public class ConnectHandler extends EventHandler<ConnectContent>{
     @Autowired
     private JwtTokenService jwtTokenService;
     @Autowired
