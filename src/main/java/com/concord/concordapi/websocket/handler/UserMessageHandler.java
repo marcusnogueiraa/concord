@@ -8,17 +8,14 @@ import com.concord.concordapi.messsage.service.UserMessageService;
 import com.concord.concordapi.websocket.entity.ClientMessage;
 import com.concord.concordapi.websocket.entity.EventType;
 import com.concord.concordapi.websocket.entity.content.UserMessageContent;
-import com.concord.concordapi.websocket.service.SessionService;
 
 @Component
-public class UserMessageHandler {
-
-    @Autowired
-    private SessionService sessionService; 
+public class UserMessageHandler extends EventHandler<UserMessageContent>{
 
     @Autowired
     private UserMessageService userMessageService;
     
+    @Override
     protected void handle(UserMessageContent content, WebSocketSession session){
         try {
             sendMessageAndPersist(content, session);
@@ -28,7 +25,7 @@ public class UserMessageHandler {
         }
     }
     
-    private void sendMessageAndPersist(UserMessageContent content, WebSocketSession session) throws Exception {
+    protected void sendMessageAndPersist(UserMessageContent content, WebSocketSession session) throws Exception {
         Long senderId = sessionService.getUserIdBySession(session);
         Long recipientId = content.getToUserId();
 

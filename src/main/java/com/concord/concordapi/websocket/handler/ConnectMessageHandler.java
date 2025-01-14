@@ -8,17 +8,15 @@ import com.concord.concordapi.auth.exception.IncorrectTokenException;
 import com.concord.concordapi.auth.service.JwtTokenService;
 import com.concord.concordapi.user.service.UserService;
 import com.concord.concordapi.websocket.entity.content.ConnectContent;
-import com.concord.concordapi.websocket.service.SessionService;
 
 @Component
-public class ConnectMessageHandler {
-    @Autowired
-    private SessionService sessionService; 
+public class ConnectMessageHandler extends EventHandler<ConnectContent>{
     @Autowired
     private JwtTokenService jwtTokenService;
     @Autowired
     private UserService userService;
-
+    
+    @Override
     protected void handle(ConnectContent content, WebSocketSession session) {
         try {
             String token = content.getToken();
