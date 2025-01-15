@@ -1,18 +1,17 @@
 package com.concord.concordapi.websocket.handler;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 import com.concord.concordapi.websocket.entity.content.ChannelMessageContent;
-import com.concord.concordapi.websocket.service.SessionService;
 
 @Component
-public class ChannelMessageHandler {
-    @Autowired
-    private SessionService sessionService; 
+public class ChannelMessageHandler extends EventHandler<ChannelMessageContent> {
 
+    @Override
     protected void handle(ChannelMessageContent content, WebSocketSession session) {
+        if (!sessionService.isSaved(session)) throw new IllegalArgumentException("No WebSocket Authenticaion.");
+
         try {
             //sendMessage(content, session);
             //persistMessage(content);

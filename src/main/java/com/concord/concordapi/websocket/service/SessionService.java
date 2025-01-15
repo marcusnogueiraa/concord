@@ -17,13 +17,18 @@ public class SessionService {
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
     public void saveSession(WebSocketSession session) {
-        long userId = getUserIdBySession(session);
+        Long userId = getUserIdBySession(session);
         sessions.put(userId, session);
     }
 
     public void removeSession(WebSocketSession session) {
-        long userId = getUserIdBySession(session);
+        Long userId = getUserIdBySession(session);
         sessions.remove(userId);
+    }
+
+    public boolean isSaved(WebSocketSession session){
+        Long userId = getUserIdBySession(session);
+        return userId != null; 
     }
 
     public WebSocketSession getSession(Long userId) {

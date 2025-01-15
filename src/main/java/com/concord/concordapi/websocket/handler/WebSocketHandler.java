@@ -7,30 +7,27 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.concord.concordapi.websocket.entity.ClientMessage;
 import com.concord.concordapi.websocket.entity.content.ChannelMessageContent;
+import com.concord.concordapi.websocket.entity.content.ConnectContent;
 import com.concord.concordapi.websocket.entity.content.UserMessageContent;
 import com.concord.concordapi.websocket.service.SessionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
-
     @Autowired
     private SessionService sessionService;
-    
     @Autowired
     private ObjectMapper objectMapper;
-
+    @Autowired
+    private ConnectHandler connectHandler;
     @Autowired
     private UserMessageHandler userMessageHandler;
-
     @Autowired
     private ChannelMessageHandler channelMessageHandler;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        Long userId = sessionService.getUserIdBySession(session);
-        System.out.println("User connected :" + userId);
-        sessionService.saveSession(session);
+        System.out.println("New Websocket Connection");
     }
     
     @Override
@@ -43,11 +40,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         Long userId = sessionService.getUserIdBySession(session);
         System.out.println("User disconnected :" + userId);
-        sessionService.removeSession(session);
+        if (userId != null) sessionService.removeSession(session);
     }
 
     private void delegateHandler(ClientMessage<?> clientMessage, WebSocketSession session) throws Exception {
         switch (clientMessage.getEventType()) {
+            case CONNECT -> {
+                ConnectContent content = objectMapper.convertValue(clientMessage.getContent(), ConnectContent.class);
+                connectHandler.handle(content, session);
+            }
             case USER_MESSAGE -> {
                 UserMessageContent content = objectMapper.convertValue(clientMessage.getContent(), UserMessageContent.class);
                 userMessageHandler.handle(content, session);
