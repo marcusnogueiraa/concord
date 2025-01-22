@@ -58,7 +58,9 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(()-> new EntityNotFoundException("User authenticated not found"));
         authService.isUserTheAuthenticated(user);
+        System.out.println("veio aasdagass");
         if(userRepository.findByUsername(userPatchUsername.username()).isPresent()){
+            System.out.println("veio aaass");
             throw new RuntimeException("This username is already in use");
         }
         user.setUsername(userPatchUsername.username());
@@ -70,7 +72,7 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(()-> new EntityNotFoundException("User authenticated not found"));
         authService.isUserTheAuthenticated(user);
-        user.setUsername(userPatchName.name());
+        user.setName(userPatchName.name());
         userRepository.save(user);
         return UserMapper.toDto(user);
     }
