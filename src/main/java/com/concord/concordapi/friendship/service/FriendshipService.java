@@ -9,12 +9,14 @@ import com.concord.concordapi.friendship.mapper.FriendshipMapper;
 import com.concord.concordapi.friendship.repository.FriendshipRepository;
 import com.concord.concordapi.shared.exception.EntityNotFoundException;
 import com.concord.concordapi.shared.exception.FailManipulationFriendship;
+import com.concord.concordapi.shared.exception.InternalServerErrorException;
 import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.friendship.dto.request.FriendshipCreateDTO;
 import com.concord.concordapi.friendship.dto.request.FriendshipPutDTO;
 import com.concord.concordapi.friendship.dto.response.FriendshipDto;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
+import com.concord.concordapi.websocket.service.NotificationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,8 @@ public class FriendshipService {
     private UserRepository userRepository;
     @Autowired
     private AuthService authService;
+    @Autowired
+    private NotificationService notificationService;
 
     public FriendshipDto get(Long id) {
         Friendship friendship = friendshipRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Friendship not found"));
@@ -59,6 +63,7 @@ public class FriendshipService {
     public FriendshipDto create(FriendshipCreateDTO friendshipDTO) {
         User from = userRepository.findById(authService.getAuthenticatedUserId()).orElseThrow(()-> new EntityNotFoundException("User id "+authService.getAuthenticatedUserId()+" not found"));
         User to = userRepository.findByUsername(friendshipDTO.toUsername()).orElseThrow(()-> new EntityNotFoundException("User with username "+friendshipDTO.toUsername()+" not found"));
+        
         if(from == to){
             throw new FailManipulationFriendship("User cannot send a friendship request to themselves");
         }
@@ -70,10 +75,13 @@ public class FriendshipService {
         }
         Friendship friendship = new Friendship(null, from, to, FriendshipStatus.PENDING, null, null);
         friendship = friendshipRepository.save(friendship);
-        return FriendshipMapper.toDto(friendship);
+
+        FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
+        notifyUser(to.getId(), responseDto);
+        return responseDto;
     }
 
-    public void canceled(Long id) {
+    public void cancel(Long id) {
         User from = userRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("User id "+id+" not found"));
         authService.isUserTheAuthenticated(from);
         Friendship friendship = friendshipRepository.findById(id)
@@ -83,6 +91,9 @@ public class FriendshipService {
         }
         friendship.setStatus(FriendshipStatus.CANCELED);
         friendshipRepository.save(friendship);
+        
+        Long toUSerId = friendship.getTo_user().getId();
+        notifyUser(toUSerId, FriendshipMapper.toDto(friendship));
     }
 
     public FriendshipDto update(Long id, FriendshipPutDTO friendshipDTO) {
@@ -92,13 +103,23 @@ public class FriendshipService {
         authService.isUserTheAuthenticated(to);
         friendship.setStatus(friendshipDTO.status());
         friendshipRepository.save(friendship);
-        return FriendshipMapper.toDto(friendship);
+
+        FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
+        return responseDto;
     }
 
     private void canAuthenticatedViewFriendship(Friendship friendship){
         Long authenticatedId = authService.getAuthenticatedUserId();
         if(friendship.getFrom_user().getId() != authenticatedId && friendship.getTo_user().getId()!=authenticatedId){
             throw new AuthorizationDeniedException("Authenticated User doesn't have permission to perform this action.");
+        }
+    }
+
+    private void notifyUser(Long toUserId, FriendshipDto friendshipDto){
+        try {
+            notificationService.sendFriendRequestToUser(toUserId, friendshipDto);
+        } catch (Exception exception) {
+            throw new InternalServerErrorException("Notification Serialization Error");
         }
     }
 }

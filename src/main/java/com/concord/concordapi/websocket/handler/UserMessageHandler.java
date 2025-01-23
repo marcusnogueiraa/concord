@@ -8,17 +8,21 @@ import com.concord.concordapi.messsage.service.UserMessageService;
 import com.concord.concordapi.websocket.entity.ClientMessage;
 import com.concord.concordapi.websocket.entity.EventType;
 import com.concord.concordapi.websocket.entity.content.UserMessageContent;
+import com.concord.concordapi.websocket.service.NotificationService;
 
 @Component
 public class UserMessageHandler extends EventHandler<UserMessageContent>{
 
     @Autowired
     private UserMessageService userMessageService;
+
+    @Autowired
+    private NotificationService notificationService;
     
     @Override
     protected void handle(UserMessageContent content, WebSocketSession session){
         if (!sessionService.isSaved(session)) throw new IllegalArgumentException("No WebSocket Authenticaion.");
-        
+
         try {
             sendMessageAndPersist(content, session);
         } catch (Exception e) {
@@ -33,8 +37,8 @@ public class UserMessageHandler extends EventHandler<UserMessageContent>{
 
         ClientMessage<UserMessageContent> clientMessage = buildMessage(content, senderId);
 
-        sessionService.sendMessageToUser(senderId, clientMessage); 
-        sessionService.sendMessageToUser(recipientId, clientMessage);   
+        notificationService.sendMessageToUser(senderId, clientMessage); 
+        notificationService.sendMessageToUser(recipientId, clientMessage);   
     
         userMessageService.saveUserMessageContent(clientMessage.getContent());
     }

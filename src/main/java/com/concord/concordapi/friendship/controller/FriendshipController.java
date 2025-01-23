@@ -39,8 +39,8 @@ public class FriendshipController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> canceled(@PathVariable Long id) {
-        friendshipService.canceled(id);
+    public ResponseEntity<Void> cancel(@PathVariable Long id) {
+        friendshipService.cancel(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); 
     }
     
