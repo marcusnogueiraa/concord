@@ -32,12 +32,10 @@ public class Friendship {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "from_user")
-    private User from_user;
+    private User fromUser;
 
     @ManyToOne
-    @JoinColumn(name = "to_user")
-    private User to_user;
+    private User toUser;
     
     @NotNull
     @Enumerated(EnumType.STRING)

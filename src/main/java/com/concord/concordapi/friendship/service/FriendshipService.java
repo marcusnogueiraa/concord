@@ -12,7 +12,6 @@ import com.concord.concordapi.shared.exception.FailManipulationFriendship;
 import com.concord.concordapi.shared.exception.InternalServerErrorException;
 import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.friendship.dto.request.FriendshipCreateDTO;
-import com.concord.concordapi.friendship.dto.request.FriendshipPutDTO;
 import com.concord.concordapi.friendship.dto.response.FriendshipDto;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
@@ -35,7 +34,7 @@ public class FriendshipService {
 
     public FriendshipDto get(Long id) {
         Friendship friendship = friendshipRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Friendship not found"));
-        canAuthenticatedViewFriendship(friendship);
+        canAuthenticatedManipuleFriendship(friendship);
         return FriendshipMapper.toDto(friendship);
     }
 
@@ -92,25 +91,54 @@ public class FriendshipService {
         friendship.setStatus(FriendshipStatus.CANCELED);
         friendshipRepository.save(friendship);
         
-        Long toUSerId = friendship.getTo_user().getId();
+        Long toUSerId = friendship.getToUser().getId();
         notifyUser(toUSerId, FriendshipMapper.toDto(friendship));
     }
 
-    public FriendshipDto update(Long id, FriendshipPutDTO friendshipDTO) {
+    public FriendshipDto accept(Long id) {
         Friendship friendship = friendshipRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Friendship id "+id+" not found"));
-        User to = userRepository.findById(friendship.getTo_user().getId()).orElseThrow(()-> new EntityNotFoundException("User id "+id+" not found"));
+        User to = userRepository.findById(friendship.getToUser().getId()).orElseThrow(()-> new EntityNotFoundException("User id "+id+" not found"));
         authService.isUserTheAuthenticated(to);
-        friendship.setStatus(friendshipDTO.status());
+        if (friendship.getStatus() != FriendshipStatus.PENDING) {
+            throw new FailManipulationFriendship("You can only accept pending friendship requests");
+        }
+        friendship.setStatus(FriendshipStatus.ACCEPTED);
+        friendshipRepository.save(friendship);
+        FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
+        return responseDto;
+    }
+    public FriendshipDto deny(Long id) {
+        Friendship friendship = friendshipRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Friendship id "+id+" not found"));
+        User to = userRepository.findById(friendship.getToUser().getId()).orElseThrow(()-> new EntityNotFoundException("User id "+id+" not found"));
+        authService.isUserTheAuthenticated(to);
+        if (friendship.getStatus() != FriendshipStatus.PENDING) {
+            throw new FailManipulationFriendship("You can only deny pending friendship requests");
+        }
+        friendship.setStatus(FriendshipStatus.DENIED);
+        friendshipRepository.save(friendship);
+
+        FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
+        return responseDto;
+    }
+    public FriendshipDto remove(Long id) {
+        Friendship friendship = friendshipRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Friendship id "+id+" not found"));
+        canAuthenticatedManipuleFriendship(friendship);
+        if (friendship.getStatus() != FriendshipStatus.ACCEPTED) {
+            throw new FailManipulationFriendship("You can only remove accepted friendships");
+        }
+        friendship.setStatus(FriendshipStatus.REMOVED);
         friendshipRepository.save(friendship);
 
         FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
         return responseDto;
     }
 
-    private void canAuthenticatedViewFriendship(Friendship friendship){
+    private void canAuthenticatedManipuleFriendship(Friendship friendship){
         Long authenticatedId = authService.getAuthenticatedUserId();
-        if(friendship.getFrom_user().getId() != authenticatedId && friendship.getTo_user().getId()!=authenticatedId){
+        if(friendship.getFromUser().getId() != authenticatedId && friendship.getToUser().getId()!=authenticatedId){
             throw new AuthorizationDeniedException("Authenticated User doesn't have permission to perform this action.");
         }
     }

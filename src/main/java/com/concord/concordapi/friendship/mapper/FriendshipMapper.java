@@ -7,8 +7,8 @@ import com.concord.concordapi.user.entity.User;
 
 public class FriendshipMapper {
     public static FriendshipDto toDto(Friendship entity){
-        UserDto FromRequest = makeUserRequestDTOByUser(entity.getFrom_user());
-        UserDto ToRequest =  makeUserRequestDTOByUser(entity.getTo_user());
+        UserDto FromRequest = makeUserRequestDTOByUser(entity.getFromUser());
+        UserDto ToRequest =  makeUserRequestDTOByUser(entity.getToUser());
         return new FriendshipDto(
             entity.getId(),
             FromRequest,
