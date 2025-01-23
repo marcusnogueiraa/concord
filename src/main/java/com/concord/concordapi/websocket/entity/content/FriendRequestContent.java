@@ -1,5 +1,6 @@
 package com.concord.concordapi.websocket.entity.content;
 
+import com.concord.concordapi.friendship.dto.response.FriendshipDto;
 import com.concord.concordapi.friendship.entity.FriendshipStatus;
 import com.concord.concordapi.user.dto.response.UserDto;
 
@@ -17,4 +18,11 @@ public class FriendRequestContent {
     private UserDto from;
     private UserDto to;
     private FriendshipStatus status;
+
+    public FriendRequestContent(FriendshipDto friendshipDto) {
+        this.id = friendshipDto.id();
+        this.from = friendshipDto.from();
+        this.to = friendshipDto.to();
+        this.status = friendshipDto.status();
+    }
 }
