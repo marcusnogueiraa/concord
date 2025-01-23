@@ -1,18 +1,13 @@
 package com.concord.concordapi.websocket.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-
-import com.concord.concordapi.websocket.entity.ClientMessage;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SessionService {
-    private ObjectMapper objectMapper = new ObjectMapper();
 
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
@@ -39,15 +34,4 @@ public class SessionService {
         return (Long) session.getAttributes().get("userId");
     }
 
-    public Boolean sendMessageToUser(Long userId, ClientMessage<?> clientMessage) throws Exception {
-        WebSocketSession session = sessions.get(userId);
-        if (session != null && session.isOpen()) {
-            String jsonMessage = objectMapper.writeValueAsString(clientMessage);
-            session.sendMessage(new TextMessage(jsonMessage));
-            return true;
-        } else {
-            System.out.println("Sessão não encontrada ou já fechada para o usuário: " + userId);
-            return false;
-        }
-    }
 }
