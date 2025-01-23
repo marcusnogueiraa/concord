@@ -22,7 +22,7 @@ public class UserMessageHandler extends EventHandler<UserMessageContent>{
     @Override
     protected void handle(UserMessageContent content, WebSocketSession session){
         if (!sessionService.isSaved(session)) throw new IllegalArgumentException("No WebSocket Authenticaion.");
-        
+
         try {
             sendMessageAndPersist(content, session);
         } catch (Exception e) {
