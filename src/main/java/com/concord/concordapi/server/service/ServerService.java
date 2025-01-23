@@ -80,7 +80,6 @@ public class ServerService {
             }
             updatedServer.setImagePath(prefix.getDisplayName()+"/"+server.imageTempPath());
         }
-        updatedServer = serverRepository.save(updatedServer);
         updatedServer.setName(server.name());
         Server createdServer = serverRepository.save(updatedServer);
         return ServerMapper.toDto(createdServer);
