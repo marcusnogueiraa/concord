@@ -1,16 +1,14 @@
 package com.concord.concordapi.friendship.service;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import com.concord.concordapi.auth.service.AuthService;
 import com.concord.concordapi.friendship.dto.request.FriendshipCreateDTO;
-import com.concord.concordapi.friendship.dto.request.FriendshipPutDTO;
 import com.concord.concordapi.friendship.dto.response.FriendshipDto;
 import com.concord.concordapi.friendship.entity.Friendship;
 import com.concord.concordapi.friendship.entity.FriendshipStatus;
@@ -20,9 +18,19 @@ import com.concord.concordapi.shared.exception.EntityNotFoundException;
 import com.concord.concordapi.shared.exception.FailManipulationFriendship;
 import com.concord.concordapi.user.entity.User;
 import com.concord.concordapi.user.repository.UserRepository;
+import com.concord.concordapi.websocket.service.NotificationService;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 
 public class FriendshipServiceTest {
@@ -38,6 +46,9 @@ public class FriendshipServiceTest {
 
     @Mock
     private FriendshipMapper friendshipMapper;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private FriendshipService friendshipService;
@@ -60,7 +71,7 @@ public class FriendshipServiceTest {
     @Test
     void testGetFriendshipSuccess() {
         when(friendshipRepository.findById(1L)).thenReturn(Optional.of(friendship));
-        when(authService.getAuthenticatedUserId()).thenReturn(friendship.getTo_user().getId());
+        when(authService.getAuthenticatedUserId()).thenReturn(friendship.getToUser().getId());
         FriendshipDto result = friendshipService.get(1L);
 
         assertNotNull(result);
@@ -135,69 +146,112 @@ public class FriendshipServiceTest {
     }
 
     @Test
-    void testCanceledSuccess() {
-        User user = new User(1l, "user", "user", "user@email.com", "123", null, new ArrayList(), null, null);
-        Friendship friendship = new Friendship(1L, user, new User(), FriendshipStatus.PENDING, null, null);
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+    void testCancelFriendship() throws Exception {
+        friendship.setStatus(FriendshipStatus.PENDING);
         when(friendshipRepository.findById(1L)).thenReturn(Optional.of(friendship));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(from));
+        doNothing().when(authService).isUserTheAuthenticated(from);
 
-        friendshipService.canceled(1L);
+        friendshipService.cancel(1L);
 
         assertEquals(FriendshipStatus.CANCELED, friendship.getStatus());
+        verify(friendshipRepository, times(1)).save(friendship);
+        verify(notificationService, times(1)).sendFriendRequestToUser(2L, FriendshipMapper.toDto(friendship));
+    }
+
+    @Test
+    void testCancelFriendship_UserNotFound() {
+        when(friendshipRepository.findById(1L)).thenReturn(Optional.of(friendship));
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
+            friendshipService.cancel(1L);
+        });
+
+        assertEquals("User id 1 not found", thrown.getMessage());
+    }
+
+    @Test
+    void testAcceptFriendship() {
+        friendship.setStatus(FriendshipStatus.PENDING);
+        when(friendshipRepository.findById(1L)).thenReturn(Optional.of(friendship));
+        when(userRepository.findById(2L)).thenReturn(Optional.of(to));
+        doNothing().when(authService).isUserTheAuthenticated(to);
+
+        FriendshipDto response = friendshipService.accept(1L);
+
+        assertEquals(FriendshipStatus.ACCEPTED, friendship.getStatus());
+        assertNotNull(response);
         verify(friendshipRepository, times(1)).save(friendship);
     }
 
     @Test
-    void testCanceledFriendshipNotFound() {
-        when(friendshipRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> friendshipService.canceled(1L));
-    }
-
-    @Test
-    void testCanceledInvalidStatus() {
-        User user = new User(1l, "user", "user", "user@email.com", "123", null, new ArrayList(), null, null);
-        Friendship friendship = new Friendship(1L, user, new User(), FriendshipStatus.ACCEPTED, null, null);
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+    void testAcceptFriendship_FriendshipNotPending() {
+        friendship.setStatus(FriendshipStatus.ACCEPTED);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(to));
+        doNothing().when(authService).isUserTheAuthenticated(to);
         when(friendshipRepository.findById(1L)).thenReturn(Optional.of(friendship));
 
-        assertThrows(FailManipulationFriendship.class, () -> friendshipService.canceled(1L));
+        FailManipulationFriendship thrown = assertThrows(FailManipulationFriendship.class, () -> {
+            friendshipService.accept(1L);
+        });
+
+        assertEquals("You can only accept pending friendship requests", thrown.getMessage());
     }
 
     @Test
-    void testUpdateFriendshipSuccess() {
-        FriendshipPutDTO friendshipPutDTO = new FriendshipPutDTO(1L, FriendshipStatus.ACCEPTED);
-        Friendship friendship = new Friendship(1L, from, to, FriendshipStatus.PENDING, null, null);
-
+    void testDenyFriendship() {
+        friendship.setStatus(FriendshipStatus.PENDING);
         when(friendshipRepository.findById(1L)).thenReturn(Optional.of(friendship));
-        when(userRepository.findById(friendship.getTo_user().getId())).thenReturn(Optional.of(to));
-        doNothing().when(authService).isUserTheAuthenticated(friendship.getTo_user());
-        when(friendshipRepository.save(friendship)).thenReturn(friendship);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(to));
+        doNothing().when(authService).isUserTheAuthenticated(to);
 
-        FriendshipDto result = friendshipService.update(1L, friendshipPutDTO);
+        FriendshipDto response = friendshipService.deny(1L);
 
-        assertNotNull(result);
-        assertEquals(friendshipPutDTO.status(), result.status());
+        assertEquals(FriendshipStatus.DENIED, friendship.getStatus());
+        assertNotNull(response);
+        verify(friendshipRepository, times(1)).save(friendship);
     }
 
     @Test
-    void testUpdateFriendshipNotFound() {
-        FriendshipPutDTO friendshipPutDTO = new FriendshipPutDTO(1L, FriendshipStatus.ACCEPTED);
-        when(friendshipRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> friendshipService.update(1L, friendshipPutDTO));
-    }
-
-    @Test
-    void testUpdateFriendshipUnauthorized() {
-        FriendshipPutDTO friendshipPutDTO = new FriendshipPutDTO(1L, FriendshipStatus.ACCEPTED);
-        Friendship friendship = new Friendship(1L, from, to, FriendshipStatus.PENDING, null, null);
-
+    void testDenyFriendship_FriendshipNotPending() {
+        friendship.setStatus(FriendshipStatus.ACCEPTED);
         when(friendshipRepository.findById(1L)).thenReturn(Optional.of(friendship));
-        when(userRepository.findById(friendship.getTo_user().getId())).thenReturn(Optional.of(to));
-        doThrow(AuthorizationDeniedException.class).when(authService).isUserTheAuthenticated(friendship.getTo_user());
+        when(userRepository.findById(2L)).thenReturn(Optional.of(to));
+        doNothing().when(authService).isUserTheAuthenticated(to);
 
-        assertThrows(AuthorizationDeniedException.class, () -> friendshipService.update(1L, friendshipPutDTO));
+        FailManipulationFriendship thrown = assertThrows(FailManipulationFriendship.class, () -> {
+            friendshipService.deny(1L);
+        });
+
+        assertEquals("You can only deny pending friendship requests", thrown.getMessage());
     }
+
+    @Test
+    void testRemoveFriendship() {
+        friendship.setStatus(FriendshipStatus.ACCEPTED);
+        when(friendshipRepository.findById(1L)).thenReturn(Optional.of(friendship));
+        when(authService.getAuthenticatedUserId()).thenReturn(1L);
+
+        FriendshipDto response = friendshipService.remove(1L);
+
+        assertEquals(FriendshipStatus.REMOVED, friendship.getStatus());
+        assertNotNull(response);
+        verify(friendshipRepository, times(1)).save(friendship);
+    }
+
+    @Test
+    void testRemoveFriendship_FriendshipNotAccepted() {
+        friendship.setStatus(FriendshipStatus.PENDING);
+        when(friendshipRepository.findById(1L)).thenReturn(Optional.of(friendship));
+        when(authService.getAuthenticatedUserId()).thenReturn(1L);
+
+        FailManipulationFriendship thrown = assertThrows(FailManipulationFriendship.class, () -> {
+            friendshipService.remove(1L);
+        });
+
+        assertEquals("You can only remove accepted friendships", thrown.getMessage());
+    }
+
+    
 }
