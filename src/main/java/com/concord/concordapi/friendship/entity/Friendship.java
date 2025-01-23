@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import com.concord.concordapi.user.entity.User;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,6 +40,7 @@ public class Friendship {
     private User to_user;
     
     @NotNull
+    @Enumerated(EnumType.STRING)
     private FriendshipStatus status;
 
     private LocalDateTime createdAt;

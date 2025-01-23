@@ -81,7 +81,7 @@ public class FriendshipService {
         return responseDto;
     }
 
-    public void canceled(Long id) {
+    public void cancel(Long id) {
         User from = userRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("User id "+id+" not found"));
         authService.isUserTheAuthenticated(from);
         Friendship friendship = friendshipRepository.findById(id)
@@ -91,6 +91,9 @@ public class FriendshipService {
         }
         friendship.setStatus(FriendshipStatus.CANCELED);
         friendshipRepository.save(friendship);
+        
+        Long toUSerId = friendship.getTo_user().getId();
+        notifyUser(toUSerId, FriendshipMapper.toDto(friendship));
     }
 
     public FriendshipDto update(Long id, FriendshipPutDTO friendshipDTO) {
@@ -100,7 +103,9 @@ public class FriendshipService {
         authService.isUserTheAuthenticated(to);
         friendship.setStatus(friendshipDTO.status());
         friendshipRepository.save(friendship);
-        return FriendshipMapper.toDto(friendship);
+
+        FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
+        return responseDto;
     }
 
     private void canAuthenticatedViewFriendship(Friendship friendship){
