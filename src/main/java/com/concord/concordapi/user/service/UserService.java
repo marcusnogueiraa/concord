@@ -10,7 +10,6 @@ import com.concord.concordapi.fileStorage.entity.FilePrefix;
 import com.concord.concordapi.fileStorage.service.FileStorageService;
 import com.concord.concordapi.server.dto.response.ServerSummaryDto;
 import com.concord.concordapi.server.mapper.ServerMapper;
-import com.concord.concordapi.shared.config.SecurityConfiguration;
 import com.concord.concordapi.shared.exception.EntityNotFoundException;
 import com.concord.concordapi.user.dto.request.UserPatchImage;
 import com.concord.concordapi.user.dto.request.UserPatchName;
@@ -58,9 +57,7 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(()-> new EntityNotFoundException("User authenticated not found"));
         authService.isUserTheAuthenticated(user);
-        System.out.println("veio aasdagass");
         if(userRepository.findByUsername(userPatchUsername.username()).isPresent()){
-            System.out.println("veio aaass");
             throw new RuntimeException("This username is already in use");
         }
         user.setUsername(userPatchUsername.username());
