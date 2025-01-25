@@ -62,7 +62,6 @@ public class AuthService {
     private static final int BLOCK_TIME_IN_SECONDS = 900; 
     private final static int EMAIL_EXPIRE_TIME_IN_SECONDS = 300;
 
-    
 
     public RecoveryJwtTokenDto authenticateUser(LoginUserDto loginUserDto, String clientIp) {
         String email = loginUserDto.email();
@@ -102,12 +101,15 @@ public class AuthService {
         return user;
     }
 
+    public Boolean validateToken(String token){
+        return jwtTokenService.isTokenValid(token);
+    }
+
     public void sendForgotPassword(@RequestBody ForgotPasswordRequest request, String clientIp){
         User user = userRepository.findByEmail(request.email())
             .orElseThrow(() -> new RuntimeException("User not found with email "+request.email()));
         verifyForgotPasswordAttempts(clientIp);
         String token = UUID.randomUUID().toString();
-        
         
         redisService.save(RESET_TOKEN_KEY + token, user.getEmail(), EMAIL_EXPIRE_TIME_IN_SECONDS);
 
