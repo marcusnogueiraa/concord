@@ -48,6 +48,7 @@ public class FriendshipService {
         }
         return friendshipDTOs;
     }
+
     public List<FriendshipDto> getAllPendingFriendships(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(()-> new EntityNotFoundException("Username "+username+" not found"));
         authService.isUserTheAuthenticated(user);
@@ -106,8 +107,10 @@ public class FriendshipService {
         friendship.setStatus(FriendshipStatus.ACCEPTED);
         friendshipRepository.save(friendship);
         FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
+        notifyUser(to.getId(), responseDto);
         return responseDto;
     }
+
     public FriendshipDto deny(Long id) {
         Friendship friendship = friendshipRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Friendship id "+id+" not found"));
@@ -120,8 +123,10 @@ public class FriendshipService {
         friendshipRepository.save(friendship);
 
         FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
+        notifyUser(to.getId(), responseDto);
         return responseDto;
     }
+
     public FriendshipDto remove(Long id) {
         Friendship friendship = friendshipRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Friendship id "+id+" not found"));
@@ -133,6 +138,8 @@ public class FriendshipService {
         friendshipRepository.save(friendship);
 
         FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
+        Long toId = responseDto.to().id();
+        notifyUser(toId, responseDto);
         return responseDto;
     }
 
