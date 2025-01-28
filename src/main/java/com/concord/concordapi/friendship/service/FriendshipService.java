@@ -108,8 +108,11 @@ public class FriendshipService {
         }
         friendship.setStatus(FriendshipStatus.ACCEPTED);
         friendshipRepository.save(friendship);
+
         FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
-        notifyUser(to.getId(), responseDto);
+
+        Long fromId = friendship.getFromUser().getId();
+        notifyUser(fromId, responseDto);
         return responseDto;
     }
 
@@ -125,24 +128,38 @@ public class FriendshipService {
         friendshipRepository.save(friendship);
 
         FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
-        notifyUser(to.getId(), responseDto);
+        Long fromId = friendship.getFromUser().getId();
+        notifyUser(fromId, responseDto);
         return responseDto;
     }
 
     public FriendshipDto remove(Long id) {
         Friendship friendship = friendshipRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Friendship id "+id+" not found"));
+        
         canAuthenticatedManipuleFriendship(friendship);
+
         if (friendship.getStatus() != FriendshipStatus.ACCEPTED) {
             throw new FailManipulationFriendship("You can only remove accepted friendships");
         }
+
         friendship.setStatus(FriendshipStatus.REMOVED);
         friendshipRepository.save(friendship);
 
         FriendshipDto responseDto = FriendshipMapper.toDto(friendship);
-        Long toId = responseDto.to().id();
-        notifyUser(toId, responseDto);
+        
+        Long notifyUserId = getUserIdToNotify(friendship);
+        notifyUser(notifyUserId, responseDto);
         return responseDto;
+    }
+
+    private Long getUserIdToNotify(Friendship friendship){
+        Long authenticatedUserId = authService.getAuthenticatedUserId();
+        if (authenticatedUserId == friendship.getFromUser().getId())
+            return friendship.getToUser().getId();
+        else {
+            return friendship.getFromUser().getId();
+        } 
     }
 
     private void canAuthenticatedManipuleFriendship(Friendship friendship){

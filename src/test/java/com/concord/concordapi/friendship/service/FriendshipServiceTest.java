@@ -160,15 +160,15 @@ public class FriendshipServiceTest {
     }
 
     @Test
-    void testCancelFriendship_UserNotFound() {
-        when(friendshipRepository.findById(1L)).thenReturn(Optional.of(friendship));
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+    void testCancelFriendship_FriendshipNotFound() {
+        when(friendshipRepository.findById(1L)).thenReturn(Optional.empty());
+        when(userRepository.findById(1L)).thenReturn(Optional.of(from));
 
         EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
             friendshipService.cancel(1L);
         });
 
-        assertEquals("User id 1 not found", thrown.getMessage());
+        assertEquals("Friendship id 1 not found", thrown.getMessage());
     }
 
     @Test
