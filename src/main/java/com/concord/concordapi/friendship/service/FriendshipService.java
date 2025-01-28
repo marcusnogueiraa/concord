@@ -82,13 +82,15 @@ public class FriendshipService {
     }
 
     public void cancel(Long id) {
-        User from = userRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("User id "+id+" not found"));
-        authService.isUserTheAuthenticated(from);
         Friendship friendship = friendshipRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Friendship id "+id+" not found"));
         if (friendship.getStatus() != FriendshipStatus.PENDING) {
             throw new FailManipulationFriendship("You can only cancel pending friendship requests");
         }
+        Long fromId = friendship.getFromUser().getId();
+        User from = userRepository.findById(fromId).orElseThrow(()-> new EntityNotFoundException("User id "+fromId+" not found"));
+        authService.isUserTheAuthenticated(from);
+
         friendship.setStatus(FriendshipStatus.CANCELED);
         friendshipRepository.save(friendship);
         
