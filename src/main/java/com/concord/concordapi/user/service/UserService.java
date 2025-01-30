@@ -81,7 +81,7 @@ public class UserService {
 
         FilePrefix prefix = new FilePrefix("user_image");
         fileStorageService.persistImage(prefix ,userPatchImage.imageTempPath());
-        if(fileStorageService.fileExists(user.getImagePath())){
+        if(user.getImagePath() != null && fileStorageService.fileExists(user.getImagePath())){
             fileStorageService.deleteFile(user.getImagePath());
         }
         user.setImagePath(prefix.getDisplayName()+"/"+userPatchImage.imageTempPath());
