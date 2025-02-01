@@ -7,7 +7,7 @@ logs/
 !**/src/test/**/build/
 application-local.properties
 application-test.properties
-files/** 
+files/
 logs/
 
 ### STS ###

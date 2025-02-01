@@ -97,7 +97,7 @@ public class AuthService {
         String key = CREATED_USER_CODE_KEY + code;
         User user = (User) redisService.find(key);
         if (user == null) throw new IncorrectCodeException("Incorrect code.");
-        else userRepository.save(user);
+        else user = userRepository.save(user);
         UserDetailsImpl userDetails = new UserDetailsImpl(user);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

@@ -31,7 +31,6 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(String to, String code) throws MessagingException {
-        System.out.println("fui chamado e nao deveria");
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setTo(to);
