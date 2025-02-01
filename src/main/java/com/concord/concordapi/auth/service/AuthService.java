@@ -93,12 +93,16 @@ public class AuthService {
         sendVerificationCode(newUser);
     }
 
-    public User confirmUserRegister(String code){
+    public RecoveryJwtTokenDto confirmUserRegister(String code){
         String key = CREATED_USER_CODE_KEY + code;
         User user = (User) redisService.find(key);
         if (user == null) throw new IncorrectCodeException("Incorrect code.");
         else userRepository.save(user);
-        return user;
+        UserDetailsImpl userDetails = new UserDetailsImpl(user);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return new RecoveryJwtTokenDto(jwtTokenService.generateToken(userDetails), UserMapper.toDto(userDetails.getUser()));
     }
 
     public Boolean validateToken(String token){
