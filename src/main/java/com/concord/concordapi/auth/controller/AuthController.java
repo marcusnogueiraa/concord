@@ -42,9 +42,9 @@ public class AuthController {
     }
 
     @PostMapping("/confirm")
-    public ResponseEntity<Void> confirmUserRegister(@RequestBody ConfirmationCode confirmationCode) {
-        authService.confirmUserRegister(confirmationCode.code());
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    public ResponseEntity<RecoveryJwtTokenDto> confirmUserRegister(@RequestBody ConfirmationCode confirmationCode, HttpServletRequest request) {
+        RecoveryJwtTokenDto token = authService.confirmUserRegister(confirmationCode.code());
+        return ResponseEntity.ok(token);
     }
 
     @PostMapping("/validade-token")
