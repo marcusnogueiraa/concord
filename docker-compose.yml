@@ -30,7 +30,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: concord
     ports:
-      - "5432:5432" 
+      - "5738:5432" 
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -40,7 +40,7 @@ services:
     image: mongo:8.0.3
     container_name: mongo
     ports:
-      - "27017:27017"
+      - "39124:27017"
     volumes:
       - mongo_data:/mongo/data
     networks:
@@ -50,7 +50,7 @@ services:
     image: redis:7.4.1
     container_name: redis
     ports:
-      - "6379:6379" 
+      - "3512:6379" 
     volumes:
       - redis_data:/redis/data
     networks:
