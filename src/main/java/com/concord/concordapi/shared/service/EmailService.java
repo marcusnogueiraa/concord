@@ -34,7 +34,7 @@ public class EmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setTo(to);
-        helper.setSubject("Confirmação de Email");
+        helper.setSubject("Email confirm");
         String htmlContent = getMessage(code);
         helper.setText(htmlContent, true);
         mailSender.send(message);
@@ -53,16 +53,16 @@ public class EmailService {
     private String getMessage(String code){
         String htmlContent = "<!DOCTYPE html>" +
                 "<html>" +
-                "<head><title>Confirmação de Email</title></head>" +
+                "<head><title>Email Confirmation</title></head>" +
                 "<body>" +
-                "<h2>Confirmação de Email</h2>" +
-                "<p>Olá,</p>" +
-                "<p>Seu código de verificação é:</p>" +
+                "<h2>Email Confirmation</h2>" +
+                "<p>Hello,</p>" +
+                "<p>Your verification code is:</p>" +
                 "<h1>" + code + "</h1>" +
-                "<p>Por favor, insira este código para concluir seu registro.</p>" +
-                "<p>Se você não solicitou este código, ignore este email.</p>" +
+                "<p>Please enter this code to complete your registration.</p>" +
+                "<p>If you did not request this code, please ignore this email.</p>" +
                 "<hr>" +
-                "<footer><p>Este é um email automático, não responda.</p></footer>" +
+                "<footer><p>This is an automated email, please do not reply.</p></footer>" +
                 "</body>" +
                 "</html>";
         return htmlContent;
@@ -70,15 +70,15 @@ public class EmailService {
     private String getMessageForgotPassword(String resetLink){
         String htmlContent = "<!DOCTYPE html>" +
                 "<html>" +
-                "<head><title>Recuperação de senha</title></head>" +
+                "<head><title>Password Recovery</title></head>" +
                 "<body>" +
-                "<h2>Recuperação de senha</h2>" +
-                "<p>Olá,</p>" +
-                "<p>Se voce solicitou uma recuperação, clique no link para redefinir sua senha</p>" +
-                "<a href="+resetLink+">" + resetLink + "</a>" +
-                "<p>Se você não solicitou esta recuperação, ignore este email.</p>" +
+                "<h2>Password Recovery</h2>" +
+                "<p>Hello,</p>" +
+                "<p>If you requested a recovery, click the link to reset your password</p>" +
+                "<a href=" + resetLink + ">" + resetLink + "</a>" +
+                "<p>If you did not request this recovery, please ignore this email.</p>" +
                 "<hr>" +
-                "<footer><p>Este é um email automático, não responda.</p></footer>" +
+                "<footer><p>This is an automated email, please do not reply.</p></footer>" +
                 "</body>" +
                 "</html>";
         return htmlContent;
