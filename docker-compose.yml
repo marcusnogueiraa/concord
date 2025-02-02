@@ -14,7 +14,8 @@ services:
       DATABASE_URL: jdbc:postgresql://postgres:5432/concord
       DATABASE_USERNAME: postgres
       DATABASE_PASSWORD: postgres
-      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       MONGODB_URL: mongodb://mongo:27017/concord
       SPRING_PROFILES_ACTIVE: local
       FILE_STORAGE_PATH: /app/files
