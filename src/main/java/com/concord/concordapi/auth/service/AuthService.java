@@ -4,6 +4,7 @@ import java.security.SecureRandom;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -51,6 +52,9 @@ public class AuthService {
 
     @Autowired
     private EmailService emailService;
+
+    @Value("${FRONTEND_URL}")
+    private String frontendUrl;
 
     private final static String CREATED_USER_CODE_KEY = "user:created_user_code:";
     private final static String LOGIN_ATTEMPTS_KEY = "user:login_attempts:";
@@ -117,7 +121,7 @@ public class AuthService {
         
         redisService.save(RESET_TOKEN_KEY + token, user.getEmail(), EMAIL_EXPIRE_TIME_IN_SECONDS);
 
-        String resetLink = "http://localhost:8080/api/auth/reset-password?token=" + token;
+        String resetLink = frontendUrl+"/reset-password?token=" + token;
         try{
             emailService.sendForgotPasswordEmail(user.getEmail(), resetLink);
             incrementForgotPasswordAttempts(user.getEmail(), clientIp);
