@@ -16,7 +16,7 @@ services:
       DATABASE_PASSWORD: postgres
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      MONGODB_URL: mongodb://mongo:27017/concord
+      MONGODB_URI: mongodb://mongo:27017/concord
       SPRING_PROFILES_ACTIVE: local
       FILE_STORAGE_PATH: /app/files
     volumes:
