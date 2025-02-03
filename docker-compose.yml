@@ -1,0 +1,70 @@
+services:
+  app:
+    build: .
+    container_name: springboot-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+    networks:
+      - concord-network
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/concord
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MONGODB_URI: mongodb://mongo:27017/concord
+      SPRING_PROFILES_ACTIVE: local
+      FILE_STORAGE_PATH: /app/files
+    volumes:
+      - ./files:/app/files
+      - ./logs:/app/logs
+
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: concord
+    ports:
+      - "5738:5432" 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - concord-network
+
+  mongodb:
+    image: mongo:8.0.3
+    container_name: mongo
+    ports:
+      - "39124:27017"
+    volumes:
+      - mongo_data:/mongo/data
+    networks:
+      - concord-network
+
+  redis:
+    image: redis:7.4.1
+    container_name: redis
+    ports:
+      - "3512:6379" 
+    volumes:
+      - redis_data:/redis/data
+    networks:
+      - concord-network
+
+volumes:
+  postgres_data:
+    driver: local
+  mongo_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  concord-network:
+    driver: bridge

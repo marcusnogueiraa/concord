@@ -1,9 +1,14 @@
 HELP.md
 .gradle
 build/
+logs/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+application-local.properties
+application-test.properties
+files/
+logs/
 
 ### STS ###
 .apt_generated
