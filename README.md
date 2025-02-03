@@ -2,7 +2,7 @@
 
 **Current Version**: `0.1.0-beta (open to public testing)`  </br>
 **PT-BR README**: [Clique aqui para ver em Português](./README-PTBR.md) </br></br>
-**GitHub Projects (Back-end)**: [Back-end Project Board](https://github.com/username/backend-project-link) </br>
+**GitHub Projects (Back-end)**: [Back-end Project Board](https://github.com/users/marcusnogueiraa/projects/2) </br>
 **Front-end Repository**: [Concord Chat Front-end](http://github.com/mmiiranda/concord)  </br>
 **Project Deploy**: [Front-end Live Demo](http://164.68.101.141:8081/)  </br>
 

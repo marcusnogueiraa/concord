@@ -3,7 +3,7 @@
 **Versão Atual**: `0.1.0-beta (aberta para testes)`  
 **README em Inglês**: [Clique aqui para ler em Inglês](/README.md)  
 
-**GitHub Projects (Back-end)**: [Quadro do Projeto Back-end](https://github.com/username/backend-project-link)  
+**GitHub Projects (Back-end)**: [Quadro do Projeto Back-end](https://github.com/users/marcusnogueiraa/projects/2)  
 **Repositório Front-end**: [Concord Chat Front-end](http://github.com/mmiiranda/concord)  
 **Deploy do Projeto**: [Live Demo do Front-end](http://164.68.101.141:8081/)  
 
