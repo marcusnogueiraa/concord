@@ -255,12 +255,12 @@ Alguns recursos futuros (ou parcialmente implementados):
 
 1. **Clonar o repositório**:
    ```bash
-   git clone https://github.com/username/concord-backend.git
+   git clone https://github.com/marcusnogueiraa/concord.git
    ```
 2. **Fazer o build do projeto**:
    ```bash
-   cd concord-backend
-   gradle build
+   cd concord
+   ./gradlew build
    ```
 3. **Iniciar os serviços Docker**:
    ```bash
