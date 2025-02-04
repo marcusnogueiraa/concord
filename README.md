@@ -258,12 +258,12 @@ Some upcoming (or partially implemented) features:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/username/concord-backend.git
+   git clone https://github.com/marcusnogueiraa/concord.git
    ```
 2. **Build the project**:
    ```bash
-   cd concord-backend
-   gradle build
+   cd concord
+   ./gradle build
    ```
 3. **Start Docker services**:
    ```bash
