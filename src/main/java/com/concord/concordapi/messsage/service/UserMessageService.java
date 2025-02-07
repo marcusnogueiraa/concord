@@ -1,17 +1,18 @@
 package com.concord.concordapi.messsage.service;
-
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.concord.concordapi.fileStorage.entity.FilePrefix;
+import com.concord.concordapi.fileStorage.service.FileStorageService;
 import com.concord.concordapi.messsage.dto.response.UserChatSummaryDto;
 import com.concord.concordapi.messsage.dto.response.UserMessageResponseDto;
 import com.concord.concordapi.messsage.entity.UserChatSummary;
 import com.concord.concordapi.messsage.entity.UserMessage;
+import com.concord.concordapi.messsage.entity.message.MessageType;
 import com.concord.concordapi.messsage.repository.UserMessageRepository;
 import com.concord.concordapi.websocket.entity.content.UserMessageContent;
 
@@ -19,16 +20,24 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class UserMessageService {
-    
+    @Autowired
+    private FileStorageService fileStorageService;
+
     @Autowired
     private UserMessageRepository userMessageRepository;
 
     public void saveUserMessageContent(UserMessageContent userMessageContent){
+        if (userMessageContent.getType() == MessageType.FILE) {
+            FilePrefix prefix = new FilePrefix("chat_images");
+            fileStorageService.persistImage(prefix, userMessageContent.getMessage().getPath());
+        }
+        
         UserMessage message = UserMessage.builder()
                 .fromUserId(userMessageContent.getFromUserId())
                 .toUserId(userMessageContent.getToUserId())
                 .timestamp(userMessageContent.getTimestamp())
                 .message(userMessageContent.getMessage())
+                .type(userMessageContent.getType())
                 .isRead(false)
                 .build();
         userMessageRepository.save(message);

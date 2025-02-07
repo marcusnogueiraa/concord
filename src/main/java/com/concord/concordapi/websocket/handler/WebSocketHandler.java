@@ -13,6 +13,7 @@ import com.concord.concordapi.websocket.entity.content.ChannelMessageContent;
 import com.concord.concordapi.websocket.entity.content.ConnectContent;
 import com.concord.concordapi.websocket.entity.content.UserMessageContent;
 import com.concord.concordapi.websocket.service.SessionService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
@@ -53,7 +54,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
                 connectHandler.handle(content, session);
             }
             case USER_MESSAGE -> {
-                UserMessageContent content = objectMapper.convertValue(clientMessage.getContent(), UserMessageContent.class);
+                JsonNode node = objectMapper.valueToTree(clientMessage.getContent());
+                UserMessageContent content = UserMessageContent.deserialize(node);
                 userMessageHandler.handle(content, session);
             }
             case CHANNEL_MESSAGE -> {
