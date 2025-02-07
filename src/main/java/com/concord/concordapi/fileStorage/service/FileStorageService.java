@@ -38,23 +38,20 @@ public class FileStorageService {
         this.storagePath = Paths.get(storagePath);
     }
 
-    public FileUploadResponseDto storeImageTemporarily(MultipartFile image) {
-        validateFile(image);
-        if (isImage(image)) {
-            String id = storeFileTemporarily(image);
-            return new FileUploadResponseDto(id, FileType.IMAGE);
-        }
-        throw new FileFormatException("Invalid format! Only images are allowed");
+    public FileUploadResponseDto storeTemporarily(MultipartFile file) {
+        validateFile(file);
+        String id = storeFileTemporarily(file);
+        return new FileUploadResponseDto(id, FileType.IMAGE);
     }
 
-    public String persistImage(FilePrefix prefix, String fileName) {
-        if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")||fileName.endsWith(".png") || fileName.endsWith(".webp")) {
-            return persistFile(prefix, fileName);
-        }
-        throw new FileFormatException("File must be .jpg, .png, or .webp");
-    }
+    // public String persistImage(FilePrefix prefix, String fileName) {
+    //     // if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")||fileName.endsWith(".png") || fileName.endsWith(".webp")) {
+    //         return persistFile(prefix, fileName);
+    //     // }
+    //     // throw new FileFormatException("File must be .jpg, .png, or .webp");
+    // }
 
-    private String persistFile(FilePrefix prefix, String filename) {
+    public String persistFile(FilePrefix prefix, String filename) {
        try {
            Path sourcePath = getTargetPath("tempfiles", filename);
            validateFileExistence(sourcePath);
@@ -145,12 +142,12 @@ public class FileStorageService {
         return directoryPath.resolve(filename).normalize();
     }
 
-    private boolean isImage(MultipartFile file) {
-        List<String> imageMimeTypes = List.of("image/jpeg", "image/png", "image/webp");
+    // private boolean isImage(MultipartFile file) {
+    //     List<String> imageMimeTypes = List.of("image/jpeg", "image/png", "image/webp");
 
-        String mimeType = file.getContentType();
-        return imageMimeTypes.contains(mimeType);
-    }
+    //     String mimeType = file.getContentType();
+    //     return imageMimeTypes.contains(mimeType);
+    // }
 
     private String getServerUrl() {
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

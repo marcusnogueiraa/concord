@@ -23,16 +23,16 @@ public class FileStorageController {
     @Autowired
     private FileStorageService fileStorageService;
 
-    @PostMapping("images")
+    @PostMapping("files")
     public ResponseEntity<FileUploadResponseDto> uploadImage(
-            @RequestParam("image")
-            @NotNull MultipartFile image
+            @RequestParam("file")
+            @NotNull MultipartFile file
     ) {
-        FileUploadResponseDto response = fileStorageService.storeImageTemporarily(image);
+        FileUploadResponseDto response = fileStorageService.storeTemporarily(file);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("images")
+    @GetMapping("files")
     public ResponseEntity<UrlResource> downloadImage(@RequestParam("file-id") String filePath) {
         var file = fileStorageService.downloadFile(filePath);
         return ResponseEntity.ok()

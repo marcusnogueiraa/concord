@@ -83,7 +83,7 @@ class UserMessageServiceTest {
 
     @Test
     void shouldSaveUserMessageContentWithFile() {
-        MessageFile messageFile = new MessageFile("a photo", "4124.jpg");
+        MessageFile messageFile = new MessageFile("4124.jpg");
         UserMessageContent fileMessageContent = new UserMessageContent(from.getId(), to.getId(), MessageType.FILE, messageFile, 123456789L);
         userMessageService.saveUserMessageContent(fileMessageContent);
 

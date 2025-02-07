@@ -29,7 +29,7 @@ public class UserMessageService {
     public void saveUserMessageContent(UserMessageContent userMessageContent){
         if (userMessageContent.getType() == MessageType.FILE) {
             FilePrefix prefix = new FilePrefix("chat_images");
-            fileStorageService.persistImage(prefix, userMessageContent.getMessage().getPath());
+            fileStorageService.persistFile(prefix, userMessageContent.getMessage().getPath());
         }
         
         UserMessage message = UserMessage.builder()

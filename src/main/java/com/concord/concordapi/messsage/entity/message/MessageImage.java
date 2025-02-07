@@ -1,21 +1,22 @@
 package com.concord.concordapi.messsage.entity.message;
 
-public class MessageFile implements Message{
+public class MessageImage implements Message{
+    private String text;
     private String path;
 
-    public MessageFile(String path){
+    public MessageImage(String text, String path){
+        this.text = text;
         this.path = path;
     }
-    public MessageFile(){
+    public MessageImage(){
     }
     @Override
     public String getText() {
-        return null;
+        return this.text;
     }
 
     @Override
     public String getPath() {
         return this.path;
     }
-    
 }

@@ -80,7 +80,7 @@ public class UserService {
         authService.isUserTheAuthenticated(user);
 
         FilePrefix prefix = new FilePrefix("user_image");
-        fileStorageService.persistImage(prefix ,userPatchImage.imageTempPath());
+        fileStorageService.persistFile(prefix ,userPatchImage.imageTempPath());
         if(user.getImagePath() != null && fileStorageService.fileExists(user.getImagePath())){
             fileStorageService.deleteFile(user.getImagePath());
         }

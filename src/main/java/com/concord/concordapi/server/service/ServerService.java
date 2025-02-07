@@ -45,7 +45,7 @@ public class ServerService {
         newServer.setOwner(owner);
         if(server.imageTempPath() != null){
             FilePrefix prefix = new FilePrefix("server_image");
-            fileStorageService.persistImage(prefix ,server.imageTempPath());
+            fileStorageService.persistFile(prefix ,server.imageTempPath());
             newServer.setImagePath(prefix.getDisplayName()+"/"+server.imageTempPath());
         }
         newServer = serverRepository.save(newServer);
@@ -74,7 +74,7 @@ public class ServerService {
         authService.isUserTheAuthenticated(updatedServer.getOwner());
         if(server.imageTempPath() != null){
             FilePrefix prefix = new FilePrefix("server_image");
-            fileStorageService.persistImage(prefix ,server.imageTempPath());
+            fileStorageService.persistFile(prefix ,server.imageTempPath());
             if(fileStorageService.fileExists(updatedServer.getImagePath())){
                 fileStorageService.deleteFile(updatedServer.getImagePath());
             }
