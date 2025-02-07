@@ -8,7 +8,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Random;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -46,13 +48,20 @@ class ServerServiceTest {
     @InjectMocks
     private ServerService serverService;
 
+    static Random random;
+    
+    @BeforeAll
+    static void setup(){
+        random = new Random();
+    }
+
     @Test
     void testGetById() {
-        Long serverId = 1L;
+        Long serverId = random.nextLong();
         Server server = new Server();
         server.setId(serverId);
         server.setName("Test Server");
-        server.setOwner(new User(1L, "test user", "testuser", "test@gmail.com", "123", null, null, null, null));
+        server.setOwner(new User(random.nextLong(), "test user", "testuser", "test@gmail.com", "123", null, null, null, null));
 
         Mockito.when(serverRepository.findById(serverId)).thenReturn(Optional.of(server));
 
@@ -65,7 +74,7 @@ class ServerServiceTest {
 
     @Test
     void testGetById_ServerNotFound() {
-        Long serverId = 1L;
+        Long serverId = random.nextLong();
 
         Mockito.when(serverRepository.findById(serverId)).thenReturn(Optional.empty());
 
@@ -74,8 +83,8 @@ class ServerServiceTest {
 
     @Test
     void testCreateServer() {
-        ServerCreateBodyDTO serverDto = new ServerCreateBodyDTO("TestServer", 1L, "tempImagePath");
-        User owner = new User(1L, "test user", "testuser", "test@gmail.com", "123", null, null, null, null);
+        ServerCreateBodyDTO serverDto = new ServerCreateBodyDTO("TestServer", random.nextLong(), "tempImagePath");
+        User owner = new User(random.nextLong(), "test user", "testuser", "test@gmail.com", "123", null, null, null, null);
         owner.setServers(new ArrayList());
         Mockito.when(userRepository.findById(serverDto.ownerId())).thenReturn(Optional.of(owner));
         Mockito.doNothing().when(authService).isUserTheAuthenticated(owner);
@@ -90,12 +99,12 @@ class ServerServiceTest {
 
     @Test
     void testDeleteById() {
-        Long serverId = 1L;
+        Long serverId = random.nextLong();
         Server server = new Server();
         server.setId(serverId);
         server.setImagePath("path/to/image");
         User owner = new User();
-        owner.setId(1L);
+        owner.setId(random.nextLong());
         server.setOwner(owner);
         server.setUsers(new HashSet<>());
 
@@ -114,7 +123,7 @@ class ServerServiceTest {
 
     @Test
     void testUpdateById() {
-        Long serverId = 1L;
+        Long serverId = random.nextLong();
         ServerPutBodyDTO serverDto = new ServerPutBodyDTO("Updated Server", "newTempImagePath");
 
         Server server = new Server();
@@ -143,7 +152,7 @@ class ServerServiceTest {
     @Test
     void testSubscribeUser() {
         String username = "testuser";
-        Long serverId = 1L;
+        Long serverId = random.nextLong();
 
         User user = new User();
         user.setServers(new ArrayList<>());

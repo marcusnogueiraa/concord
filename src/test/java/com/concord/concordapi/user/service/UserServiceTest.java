@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Optional;
+import java.util.Random;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -38,34 +40,42 @@ class UserServiceTest {
     @Mock
     private FileStorageService fileStorageService;
 
+    static Random random;
+    
+    @BeforeAll
+    static void setup(){
+        random = new Random();
+    }
+
     @Test
     void testGetById_Success() {
         User user = new User();
-        user.setId(1L);
+        user.setId(random.nextLong());
         user.setUsername("testUser");
 
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        UserDto result = userService.getById(1L);
+        UserDto result = userService.getById(user.getId());
 
         assertNotNull(result);
-        assertEquals(1L, result.id());
-        Mockito.verify(userRepository, Mockito.times(1)).findById(1L);
+        assertEquals(user.getId(), result.id());
+        Mockito.verify(userRepository, Mockito.times(1)).findById(user.getId());
     }
 
     @Test
     void testGetById_NotFound() {
-        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        Long userIdNotFound = random.nextLong();
+        Mockito.when(userRepository.findById(userIdNotFound)).thenReturn(Optional.empty());
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.getById(1L));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.getById(userIdNotFound));
 
-        assertEquals("User 1 not found.", exception.getMessage());
+        assertEquals("User "+userIdNotFound+" not found.", exception.getMessage());
     }
 
     @Test
     void testGetByUsername_Success() {
         User user = new User();
-        user.setId(1L);
+        user.setId(random.nextLong());
         user.setUsername("testUser");
 
         Mockito.when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
