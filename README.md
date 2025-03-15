@@ -4,8 +4,8 @@
 **PT-BR README**: [Clique aqui para ver em Português](./README-PTBR.md) </br></br>
 **GitHub Projects (Back-end)**: [Back-end Project Board](https://github.com/users/marcusnogueiraa/projects/2) </br>
 **Front-end Repository**: [Concord Chat Front-end](http://github.com/mmiiranda/concord)  </br>
-**Project Deploy**: [Front-end Live Demo](concord.icu)  </br>
-**Project Observability**: [Project Grafana](grafana.concord.icu)  </br>
+**Project Deploy**: [Front-end Live Demo](https://concord.icu)  </br>
+**Project Observability**: [Project Grafana](https://grafana.concord.icu)  </br>
 
 ---
 
