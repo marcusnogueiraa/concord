@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import com.concord.concordapi.messsage.entity.message.Message;
+import com.concord.concordapi.messsage.entity.message.MessageFactory;
 import com.concord.concordapi.messsage.service.UserMessageService;
 import com.concord.concordapi.websocket.entity.ClientMessage;
 import com.concord.concordapi.websocket.entity.EventType;
@@ -34,18 +36,18 @@ public class UserMessageHandler extends EventHandler<UserMessageContent>{
     protected void sendMessageAndPersist(UserMessageContent content, WebSocketSession session) throws Exception {
         Long senderId = sessionService.getUserIdBySession(session);
         Long recipientId = content.getToUserId();
-
         ClientMessage<UserMessageContent> clientMessage = buildMessage(content, senderId);
-
+        userMessageService.saveUserMessageContent(clientMessage.getContent());
         notificationService.sendMessageToUser(senderId, clientMessage); 
         notificationService.sendMessageToUser(recipientId, clientMessage);   
     
-        userMessageService.saveUserMessageContent(clientMessage.getContent());
+        
     }
 
     private ClientMessage<UserMessageContent> buildMessage(UserMessageContent content, Long senderId){
         content.setFromUserId(senderId);
         content.setTimestamp(System.currentTimeMillis());
+        content.setMessage(MessageFactory.createMessage(content.getType(), content.getMessage()));
         return ClientMessage.<UserMessageContent>builder()
                 .eventType(EventType.USER_MESSAGE)
                 .content(content)

@@ -15,6 +15,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,7 +85,9 @@ class AuthServiceTest {
         createUserDto = new CreateUserDto("John", "john123", "john.doe@email.com", "password123");
         loginUserDto = new LoginUserDto("john.doe@email.com", "password123");
         forgotPasswordRequest = new ForgotPasswordRequest("john.doe@email.com");
-        user = new User(1L, "john", "john","john.doe@email.com", "password123", null, new ArrayList<>(), null, null);
+        Random random = new Random();
+        Long id = random.nextLong();
+        user = new User(id, "john", "john","john.doe@email.com", "password123", null, new ArrayList<>(), null, null);
         
         when(securityConfiguration.passwordEncoder()).thenReturn(new BCryptPasswordEncoder());
     }
